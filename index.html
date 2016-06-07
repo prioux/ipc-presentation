@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link rel="stylesheet" href="css/reveal.css">
+  <link rel="stylesheet" href="css/night.css">
+  <link rel="stylesheet" href="plugin/highlight/style/monokai-sublime.css">
+  <meta charset="utf-8"/>
+</head>
+
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+<!-- ############################## -->
+<!-- ############################## -->
+<!-- ############################## -->
+
+<section>
+
+<section id="title">
+  <h1>Interprocess Communication</h1>
+  <h3>Pierre Rioux</h3>
+  <h5>ACE lab Developer Meeting<br>June 2016</h5>
+</section>
+
+<!-- ****************************** -->
+
+<section id="content">
+  <h2>Table of content</h2>
+  <ul>
+    <li>Prologue: processes</li>
+    <li>IPC mechanisms:
+      <ul>
+        <li>signals</li>
+        <li>environment variables</li>
+        <li>files</li>
+        <li>fifos</li>
+        <li>pipes</li>
+        <li>sockets</li>
+      </ul>
+    </li>
+    <li>Epilogue: blah</li>
+  </ul>
+</section>
+
+</section>
+
+<!-- ############################## -->
+<!-- ############################## -->
+<!-- ############################## -->
+
+<section id="prologue">
+
+<section id="aboutprocs">
+  <h2>About processes 1</h2>
+  <strong>The obvious stuff:</strong> a UNIX process is:
+  <p>
+  <ul>
+    <li>an area of a computer's memory</li>
+    <li>where the processor executes some instructions</li>
+    <li>and stores some data</li>
+  </ul>
+</section>
+
+<!-- ****************************** -->
+
+<section id="procattr1">
+  <h2>Processes attributes 1</h2>
+  Processes have these attributes:
+  <p>
+  <ul>
+    <li>a unique ID (called <em>pid</em>, 1 to 65535)</li>
+    <li>a UNIX owner</li>
+    <li>a UNIX group</li>
+    <li>various time accounting</li>
+  </ul>
+  <p>
+  These things aren't that important for this discussion.
+</section>
+
+<!-- ****************************** -->
+
+<section id="procattr2">
+  <h2>Processes attributes 2</h2>
+  The operating system manages all the processes.
+  <p>
+  <ul>
+    <li>processes are organized in a tree</li>
+    <li>each process has a <em>parent process</em></li>
+    <li>so each process also as a <em>ppid</em></li>
+  </ul>
+</section>
+
+<!-- ****************************** -->
+
+<section id="proctree">
+  PIC PROCESS TREE
+</section>
+
+<!-- ****************************** -->
+
+<section id="attimportant">
+  <h2>Some important attributes</h2>
+
+  Processes have these three things
+  which will be important:
+  <p>
+  <ul>
+    <li>environment variables</li>
+    <li>signal handlers</li>
+    <li>file descriptors</li>
+  </ul>
+  <p>
+  These things will be described in more details later on.
+PIC procs with these things
+</section>
+
+<!-- ****************************** -->
+
+<section id="proccreate">
+  <h2>How processes are created</h2>
+
+  Surprisingly, the operating system has <strong>no</strong> mechanism
+  for creating new processes from scratch.
+  <p class="fragment">
+  A processes can only be created by another process...
+  <p class="fragment">
+  ... by making a <em>perfect copy</em> of itself.
+  <p class="fragment">
+  This is also how the tree structure emerges.
+</section>
+
+<!-- ****************************** -->
+
+<section id="procdestroy">
+  <h2>How processes are destroyed</h2>
+   They can simply finish their job.
+   <p>
+   They can be <em>terminated</em> by the operating system or by other processes.
+   <p>
+   The tree structure gets adjusted (no details here)
+</section>
+
+</section>
+
+<!-- ############################## -->
+<!-- ############################## -->
+<!-- ############################## -->
+
+<section id="whatabout">
+
+<section id="about1">
+  <h2>What IPC is about</h2>
+  This presentation is about how <em>two processes</em> can
+  send <em>'information'</em> to each other.
+  <p>
+  PIC two procs
+</section>
+
+<!-- ****************************** -->
+
+<section id="context1">
+  <h2>Two situations...</h2>
+  <p class="fragment">
+    Two processes on the same computer
+    PIC 1
+  <p class="fragment">
+    Two processes on the different computers
+    PIC 2
+</section>
+
+</section>
+
+<!-- ############################## -->
+<!-- ############################## -->
+<!-- ############################## -->
+
+<section id="separate">
+
+<!-- ****************************** -->
+
+<section id="sep1">
+  <h2>One at a time!</h2>
+  When processes run separately:
+  <p>
+  <ul>
+    <li>one after the other...</li>
+    <li>not at the same...</li>
+  </ul>
+  <p>
+  ... there is only <em>one</em> way they can
+  send information to each other.
+  <p>
+  Can you guess how?
+  <p class="fragment">
+  By creating files.
+</section>
+
+<!-- ****************************** -->
+
+<section id="sep2">
+  <h2>One at a time! 2</h2>
+
+   PIC WRITE, EXIT, READ
+</section>
+
+</section>
+
+<!-- ############################## -->
+<!-- ############################## -->
+<!-- ############################## -->
+
+<section id ="signals">
+
+<section id="sig1">
+  <h2>Signals 1</h2>
+  Processes can send and receive <em>signals</em>.
+  <p>
+  They are a sort of ultra-simple message.
+  <p>
+  The only content is the type of signal, a simple number.
+  <p>
+  <ul>
+    <li>the types are encoded as a simple number from 1 to N.</li>
+    <li>MacOS X (BSD-like) has about 30 signals</li>
+    <li>Linux has about 60 signals</li>
+    <li>they act like very quick <em>pings</em>
+    <li>for convenience, short names are given to each type</li>
+  </ul>
+  <p>
+  E.g: Signal #<em>11</em> is called <em>SIGSEGV</em>.
+</section>
+
+<!-- ****************************** -->
+
+<section id="siglist">
+  <h2>List of signals</h2>
+  You can get a full list of signals using the <em>kill -l</em> command:
+  <p>
+
+<pre>
+macosx% <em>kill -l</em>
+ 1) SIGHUP       2) SIGINT       3) SIGQUIT      4) SIGILL
+ 5) SIGTRAP      6) SIGABRT      7) SIGEMT       8) SIGFPE
+ 9) SIGKILL     10) SIGBUS      11) SIGSEGV     12) SIGSYS
+13) SIGPIPE     14) SIGALRM     15) SIGTERM     16) SIGURG
+17) SIGSTOP     18) SIGTSTP     19) SIGCONT     20) SIGCHLD
+21) SIGTTIN     22) SIGTTOU     23) SIGIO       24) SIGXCPU
+25) SIGXFSZ     26) SIGVTALRM   27) SIGPROF     28) SIGWINCH
+29) SIGINFO     30) SIGUSR1     31) SIGUSR2
+</pre>
+
+</section>
+
+<!-- ****************************** -->
+
+<section id="sigmac">
+  <h2>Signals On OS X</h2>
+
+<pre>
+<em>NAME</em>            <em>Default Action</em>          <em>Description</em>
+SIGHUP          terminate process       terminal line hangup
+SIGINT          terminate process       interrupt program
+SIGQUIT         create core image       quit program
+SIGILL          create core image       illegal instruction
+SIGTRAP         create core image       trace trap
+SIGABRT         create core image       abort(3) call (formerly SIGIOT)
+SIGEMT          create core image       emulate instruction executed
+SIGFPE          create core image       floating-point exception
+SIGKILL         terminate process       kill program
+SIGBUS          create core image       bus error
+SIGSEGV         create core image       segmentation violation
+
+<strong>... etc...</strong>
+</pre>
+
+   Ref: <em>sigvec(2)</em>
+</section>
+
+<!-- ****************************** -->
+
+<section id="siglinux">
+  <h2>Signals on Linux</h2>
+<pre>
+<em>Signal</em>     <em>Value</em>     <em>Action</em>   <em>Comment</em>
+SIGHUP        1       Term    Hangup detected on controlling terminal
+                              or death of controlling process
+SIGINT        2       Term    Interrupt from keyboard
+SIGQUIT       3       Core    Quit from keyboard
+SIGILL        4       Core    Illegal Instruction
+SIGABRT       6       Core    Abort signal from abort(3)
+SIGFPE        8       Core    Floating point exception
+SIGKILL       9       Term    Kill signal
+SIGSEGV      11       Core    Invalid memory reference
+
+<strong>... etc...</strong>
+</pre>
+
+   Ref: <em>signal(7)</em>
+</section>
+
+<!-- ****************************** -->
+
+<section id="sigsend1">
+  <h2>Sending signals 1</h2>
+  Signals are sent from one process to another.<p>
+  To send a signal you need two values:
+  <p>
+  <ul>
+    <li>the <em>number</em> for the type of signal
+    <li>(it's better to use constants instead of the raw number)</li>
+    <li>the process ID (<em>pid</em>) of the receiver</li>
+    <li>most languages have a simple method or function that takes these two values</li>
+  </ul>
+</section>
+
+<!-- ****************************** -->
+
+<section id="sigsend2">
+  <h2>Sending signals 2</h2>
+  These examples will all send the signal #15, 'SIGTERM' to a process with pid 1234 :
+  <p>
+  <ul>
+    <li>Bash: <pre>kill -TERM 1234 # same as kill -15 1234</pre></li>
+    <li>Perl: <pre>kill(SIGTERM,1234); # SIGTERM is a constant </pre></li>
+    <li>PHP: <pre>posix_kill(1234, SIGTERM);</pre></li>
+    <li>Ruby: <pre>Process.kill("TERM", 1234)</pre></li>
+  </ul>
+</section>
+
+<!-- ****************************** -->
+
+<section id="sigrec1">
+  <h2>Receiving signals 1</h2>
+  A process can set up <em>handlers</em> to run a<br> piece of code when
+  a signal is received.
+  <p>
+  <ul>
+    <li>not all signals can be handled (e.g. SIGKILL)</li>
+    <li>the handler is run asynchronously</li>
+    <li>handlers are not re-entrant</li>
+    <li>only one signal at a time can be handle</li>
+    <li>there is a default behavior for most signals</li>
+    <li>you can't even tell <strong>what other process send the signal!</strong>
+  </ul>
+</section>
+
+<!-- ****************************** -->
+
+<section id="sigrec2">
+  <h2>Receiving signals 2</h2>
+  In all languages, this consists in setting up a method or subroutine
+  to handle a signal, and then telling the OS to invoke that method when
+  the signal is received.
+  <p>
+
+  <div class="horiz">
+  <ul>
+    <li>Bash:
+    <!-- I need two stupid trailing whitespaces -->
+<pre>
+function myUSRfunc { echo Hello }  
+trap myUSRfunc SIGUSR1
+</pre>
+    </li>
+    <li>Perl:
+<pre>
+sub myUSRhandler {
+  print "Hello\n"
+}
+$SIG{'USR1'} = \&myUSRhandler;
+</pre>
+    </li>
+  </ul>
+  </div>
+
+  <div class="horiz">
+  <ul>
+    <li>PHP:
+<pre>
+function myUSRhandler($s) { echo "Hello" }   
+pcntl_signal(SIGUSR1, "myUSRhandler");
+</pre>
+    </li>
+    <li>Ruby:
+<pre>
+Signal.trap("USR1") do
+  puts "Hello"
+end
+
+</pre>
+    </li>
+  </ul>
+  </div>
+
+</section>
+
+<!-- ****************************** -->
+
+<section id="sigcommon">
+  <h2>Common signals</h2>
+  <table>
+    <tr>
+      <th>Signal name</th>
+      <th>Default effect</th>
+      <th>Trappable?</th>
+      <th>Use it for</th>
+    </tr>
+    <tr>
+      <td>TERM&nbsp;(15)</td>
+      <td>terminates process</td>
+      <td>Yes</td>
+      <td>Clean up properly</td>
+    </tr>
+    <tr>
+      <td>KILL&nbsp;(9)</td>
+      <td>terminates process</td>
+      <td>Nope!</td>
+      <td>Can't do anything about it</td>
+    </tr>
+    <tr>
+      <td>USR1,&nbsp;USR2</td>
+      <td>No effect</td>
+      <td>Yes!</td>
+      <td>Anything you want</td>
+    </tr>
+  </table>
+</section>
+
+<!-- ****************************** -->
+
+<section id="sigreca1">
+  <h2>Example A, 1</h2>
+  Script <em>test_inc.rb</em>
+<pre class="transp"><code class="ruby" data-trim>
+#!/usr/bin/ruby
+
+float   = 0.0
+counter = 0
+
+while true do
+  float = float.next_float
+  counter += 1
+  puts "Float=" + float.to_s if counter % 1000000 == 0
+end
+</code></pre>
+<p>
+We get about two reports per second on my Mac mini:
+<pre>
+<em>unix%</em> ruby test_inc.rb
+Float=4.940656e-318
+Float=9.881313e-318
+Float=1.482197e-317
+Float=1.9762626e-317
+Float=2.470328e-317
+Float=2.964394e-317
+...
+</pre>
+</section>
+
+<!-- ****************************** -->
+
+<section id="sigreca2">
+  <h2>Example A, 2</h2>
+  Improved script <em>test_inc.rb</em>
+<pre class="transp"><code class="ruby" data-trim>
+#!/usr/bin/ruby
+
+float = 0.0
+Signal.trap("USR1") { puts "Float=" + float.to_s }
+
+while true do
+  float = float.next_float
+end
+</code></pre>
+In a terminal:
+<pre>
+<em>unix%</em> ruby test_inc.rb &amp;
+[2] 3272
+<em>unix%</em> kill -USR1 3272
+Float=1.158144256e-315
+<em>unix%</em> kill -USR1 3272
+Float=1.826497665e-315
+<em>unix%</em> kill -USR1 3272
+Float=1.014102923e-314
+</pre>
+</section>
+
+<!-- ****************************** -->
+
+<section id="sigrecb1">
+  <h2>Example B, 1</h2>
+  In <strong>CBRAIN</strong> we have a maintenance process that regularly
+  archives some task's work directories. The main Ruby loop looks like this:
+  <p>
+<pre class="transp"><code data-trim class="ruby">
+# Ruby from CBRAIN (simplified)
+task_list.each |task| do   # iterates over each task
+  task.archive_work_dir()  # this can take several minutes
+done
+</code></pre>
+  <p>
+  If we kill this process at an arbitrary time, we will likely end up with
+  work directories partly archives, with DB states inconsistent, etc.
+</section>
+
+<!-- ****************************** -->
+
+<section id="sigrecb2">
+  <h2>Example B, 2</h2>
+   What we do instead is allow the admin to tell the process to finish up
+   whatever task is currently being archived, then stop before doing the next.
+   <p>
+<pre class="transp"><code data-trim class="ruby">
+# Ruby from CBRAIN (simplified)
+
+keep_going = true
+
+Signal.trap("TERM")  { keep_going = false }
+
+task_list.each |task| do   # iterates over each task
+  task.archive_work_dir()  # this can take several minutes
+  break if ! keep_going    # break from the loop
+done
+</code></pre>
+<p>
+This way we know that no task is left at an inconsistent state.
+</section>
+
+</section>
+
+<!-- ############################## -->
+<!-- ############################## -->
+<!-- ############################## -->
+
+<section>
+
+<section id="env1">
+  <h2>Environment variables</h2>
+  Each process maintain a set of environment variables.
+  <p>
+  <ul>
+    <li>they are simple pairs of key=value</li>
+    <li>all keys and values are strings</li>
+    <li>by convention, keys are UPPERCASE (but not enforced)</li>
+    <li>e.g. <em>USER=prioux</em></li>
+    <li>a few have special meanings for the operating system (e.g. <em>PATH</em>)</li>
+    <li>but most are arbitrary strings that programs agree on by convention or by specification</li>
+  </ul>
+</section>
+
+<!-- ****************************** -->
+
+<section id="envmis">
+  <h2>Misunderstandings</h2>
+  People think setting environment variables affect magically all
+  the programs they run. In fact:
+  <p>
+  <ul>
+    <li>each process has <em>its own private set</em> of environment variables</li>
+    <li>it is <em>not possible</em> for a process to change the environment variables of any another process</li>
+  </ul>
+  <p>
+  <strong>Puzzle: so how can this be even used for IPC ?</strong>
+</section>
+
+<!-- ****************************** -->
+
+<section id="envfork">
+  <h2>Environment variables are inherited</h2>
+  The key is that processes are created by forking from other processes.
+  <p>
+  <ul>
+    <li>a parent process #123 sets <em>ABC=def</em> in its environment</li>
+    <li>if the process fork(), the child process #987 also has <em>ABC=def</em></li>
+    <li>all environment variables are copied exactly, in fact.</li>
+  </ul>
+  <p>
+  The end result is that a process has a capability to communicate a set of
+  <em>X=y</em> values to their child processes.
+  <p>
+  Obviously, this communication mechanism is <strong>unidirectional</strong>:
+  the information flows only from parents to their children.
+</section>
+
+<!-- ****************************** -->
+
+<section id="envbash">
+  <h2>From the shell<br> (bash, sh, tcsh etc)</h2>
+  Interactively, the most common situation is:
+  <p>
+  <ul>
+    <li>set environment variables of a <em>shell</em> process</li>
+    <li>the shell itself probably doesn't care about the variables</li>
+    <li>but other processed launched will inherit them and use them.</li>
+  </ul>
+  <p>
+<pre>
+<em>unix%</em> export VISUAL=/bin/vim
+<em>unix%</em> git commit  # will launch <em>vim</em> to edit commit message
+<em>unix%</em> export VISUAL=/bin/nano
+<em>unix%</em> git commit  # now will launch <em>nano</em> to edit commit message
+</pre>
+</section>
+
+<!-- ****************************** -->
+
+<section id="envenv1">
+  <h2>The <em>env</em> command 1</h2>
+  One of the simplest example is the <em>env</em> UNIX command.
+  <p>
+  When run with </strong>no arguments</strong>:
+  <p>
+  <ul>
+    <li>it just prints all the environment variables it has received from its shell</li>
+  </ul>
+  <p>
+<pre>
+<em>unix%</em> env
+ABC=def
+</pre>
+  <p>
+  This is a great way to inspect what are the currently set environment variables.
+</section>
+
+<!-- ****************************** -->
+
+<section id="envenv2">
+  <h2>The <em>env</em> command 2</h2>
+  <li>When run with some ENV assignments in front of another <strong>command</strong> in argument...
+<p>
+<pre>
+env A=b C=d E=f <strong>command</strong> arg1 arg2 arg3 ...
+</pre>
+  <p>
+  <ul>
+    <li>it will change its own environment (A=b, C=d, etc)</li>
+    <li>then launch the <strong>command</strong> as a subprocess, which will inherit those variables</li>
+    <li>the environment of the shell running <em>env</em> is, itself, of course not modified in any way</li>
+  </ul>
+  <p>
+<pre>
+<em>unix%</em> env
+ABC=def
+<em>unix%</em> env TMPDIR=/home/prioux/tmp <strong>minc_scramble</strong> abcde_t1.mnc.gz
+minc scramble 1.0 : file abcde_t1.mnc.gz scrambled in /home/prioux/tmp/abcde_t1.mnc.gz
+<em>unix%</em> env
+ABC=def
+<em>unix%</em> export TMPDIR=/home/prioux/tmp  # change this in SHELL level now
+<em>unix%</em> env
+ABC=def
+TMPDIR=/home/prioux/tmp
+</pre>
+</section>
+
+<!-- ****************************** -->
+
+<section id="envsystem">
+  <h2>System-side examples</h2>
+  (Very few) environment variables have system meanings; the values they
+  have directly affect some system aspect of the process.
+  <p>
+  <table>
+    <tr>
+      <th>Name</th>
+      <th>Role</th>
+      <th>Example</th>
+    </tr>
+    <tr>
+      <td>PATH</td>
+      <td>dirs to search for executables</td>
+      <td>/bin:/usr/bin:/home/prioux/bin:etc</td>
+    </tr>
+    <tr>
+      <td>LD_LIBRARY_PATH</td>
+      <td>dirs to search for libraries</td>
+      <td>/lib:/usr/lib:etc</td>
+    </tr>
+  </table>
+</section>
+
+<!-- ****************************** -->
+
+<section id="envuser">
+  <h2>User-side examples</h2>
+  Most environment variables are specific to some programs,
+  or are the results of agreed-upong conventions.
+  <p>
+  <table>
+    <tr>
+      <th>Name</th>
+      <th>Role</th>
+      <th>Example</th>
+    </tr>
+    <tr>
+      <td>VISUAL</td>
+      <td>if set, what program to use to launch a visual text editor</td>
+      <td>/bin/vim</td>
+    </tr>
+    <tr>
+      <td>EDITOR</td>
+      <td>if set, what program to use to launch a text editor</td>
+      <td>/bin/ed</td>
+    </tr>
+    <tr>
+      <td>PAGER</td>
+      <td>if set, what program to use to launch a pager</td>
+      <td>/usr/bin/less</td>
+    </tr>
+    <tr>
+      <td>DISPLAY</td>
+      <td>X-window client programs get the socket to the X-window server</td>
+      <td>/tmp/sockets-501/xwin:0</td>
+    </tr>
+    <tr>
+      <td>LESS</td>
+      <td>options for the pager <em>less</em></td>
+      <td>MeqisXRF</td>
+    </tr>
+  </table>
+</section>
+
+<!-- ****************************** -->
+
+<section id="envman">
+  <h2>In the manual pages</h2>
+  Most manual pages describe, at their end, the environment variables
+  used by the programs.
+  <p>
+<pre>
+<em>unix%</em> man less
+LESS(1)                                               LESS(1)
+
+NAME
+       less - opposite of more
+
+SYNOPSIS
+       less -?
+       less --help
+       less -V
+
+<strong>(skipped through 'more')</strong>
+
+ENVIRONMENT VARIABLES
+       EDITOR The name of the editor (used for the v command).
+
+       LANG   Language for determining the character set.
+
+       LESS   Options which are passed to less automatically.
+
+<strong>(skipped through 'more')</strong>
+
+<em>unix%</em> export PAGER=less    # from now on I page using 'less'
+<em>unix%</em> export LESS=MeqisXRF # also, 'less' will default to these options
+</pre>
+</section>
+
+<!-- ****************************** -->
+
+<section id="envmt">
+  <h2>Example with 'mt'</h2>
+  <em>mt</em> is a UNIX command to manipulate <em>m</em>agnetic <em>t</em>apes.
+  <p>
+<pre>
+<em>unix%</em> mt -f /dev/nst0 status
+<em>unix%</em> mt -f /dev/nst0 rewind
+<em>unix%</em> mt -f /dev/nst0 fsf 3
+<em>unix%</em> man mt # can I make this simpler?
+</pre>
+
+<pre>
+<em>unix%</em> export TAPE=/dev/nst0  # seems the mt commands knows how to use this
+<em>unix%</em> mt status
+<em>unix%</em> mt rewind
+<em>unix%</em> mt fsf 3
+</pre>
+
+</section>
+
+</section>
+
+<!-- ############################## -->
+<!-- ############################## -->
+<!-- ############################## -->
+
+<section>
+
+<!-- ****************************** -->
+
+<section id="xxx">
+  <h2>xxxtitle</h2>
+  <ul>
+    <li>xxx</li>
+    <li>xxx</li>
+  </ul>
+</section>
+
+<!-- ****************************** -->
+
+<section id="xxx">
+  <h2>xxxtitle</h2>
+  <ul>
+    <li>xxx</li>
+    <li>xxx</li>
+  </ul>
+</section>
+
+<!-- ****************************** -->
+
+<section id="xxx">
+  <h2>xxxtitle</h2>
+  <ul>
+    <li>xxx</li>
+    <li>xxx</li>
+  </ul>
+</section>
+
+<!-- ****************************** -->
+
+<section id="xxx">
+  <h2>xxxtitle</h2>
+  <ul>
+    <li>xxx</li>
+    <li>xxx</li>
+  </ul>
+</section>
+
+<!-- ****************************** -->
+
+<section id="xxx">
+  <h2>xxxtitle</h2>
+  <ul>
+    <li>xxx</li>
+    <li>xxx</li>
+  </ul>
+</section>
+
+<!-- ****************************** -->
+
+<section id="xxx">
+  <h2>xxxtitle</h2>
+  <ul>
+    <li>xxx</li>
+    <li>xxx</li>
+  </ul>
+</section>
+
+<!-- ****************************** -->
+
+<section id="xxx">
+  <h2>xxxtitle</h2>
+  <ul>
+    <li>xxx</li>
+    <li>xxx</li>
+  </ul>
+</section>
+
+<!-- ****************************** -->
+
+<section id="xxx">
+  <h2>xxxtitle</h2>
+  <ul>
+    <li>xxx</li>
+    <li>xxx</li>
+  </ul>
+</section>
+
+<!-- ****************************** -->
+
+<section id="xxx">
+  <h2>xxxtitle</h2>
+  <ul>
+    <li>xxx</li>
+    <li>xxx</li>
+  </ul>
+</section>
+
+<!-- ****************************** -->
+
+<section id="xxx">
+  <h2>xxxtitle</h2>
+  <ul>
+    <li>xxx</li>
+    <li>xxx</li>
+  </ul>
+</section>
+
+<!-- ****************************** -->
+
+<section id="xxx">
+LAST SLIDE
+  <h2>xxxtitle</h2>
+  <ul>
+    <li>xxx</li>
+    <li>xxx</li>
+  </ul>
+</section>
+
+</section>
+
+<!-- ############################## -->
+<!-- ############################## -->
+<!-- ############################## -->
+
+    </div>
+  </div>
+
+  <script src="lib/js/head.min.js"></script>
+  <script src="js/reveal.js"></script>
+  <script src="plugin/highlight/highlight.js"></script>
+  <script>
+    Reveal.initialize(
+    { slideNumber: true, history: true }
+    );
+    hljs.initHighlightingOnLoad();
+  </script>
+  <style>
+    .reveal pre {
+      background: #033;
+      padding: 0.2em 0.5em 0.3em 0.5em;
+    }
+    .reveal em {
+      color: yellow;
+      font-style: normal; /* yes please! */
+    }
+    .reveal strong {
+      color: #0ff;  /* funny, I'm using RGB with only three digits today */
+    }
+    .horiz {
+      display: table-cell;
+    }
+    .reveal th {
+      color: #0da;
+    }
+    .reveal .transp {
+      background-color: transparent;
+    }
+  </style>
+</body>
+
+</html>
