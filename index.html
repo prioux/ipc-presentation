@@ -129,6 +129,7 @@ PIC procs with these things
   ... by making a <em>perfect copy</em> of itself.
   <p class="fragment">
   This is also how the tree structure emerges.
+  </p>
 </section>
 
 <!-- ****************************** -->
@@ -168,6 +169,7 @@ PIC procs with these things
   <p class="fragment">
     Two processes on the different computers
     PIC 2
+  </p>
 </section>
 
 </section>
@@ -195,6 +197,7 @@ PIC procs with these things
   Can you guess how?
   <p class="fragment">
   By creating files.
+  </p>
 </section>
 
 <!-- ****************************** -->
@@ -355,7 +358,7 @@ SIGSEGV      11       Core    Invalid memory reference
   the signal is received.
   <p>
 
-  <div class="horiz">
+  <div class="cell">
   <ul>
     <li>Bash:
     <!-- I need two stupid trailing whitespaces -->
@@ -375,7 +378,7 @@ $SIG{'USR1'} = \&myUSRhandler;
   </ul>
   </div>
 
-  <div class="horiz">
+  <div class="cell">
   <ul>
     <li>PHP:
 <pre>
@@ -788,42 +791,130 @@ ENVIRONMENT VARIABLES
 
 <!-- ****************************** -->
 
-<section id="xxx">
-  <h2>xxxtitle</h2>
+<section id="fd1">
+  <h2>File descriptors</h2>
+  Each process maintains a private list of file descriptors (<em>FD</em>)
+  <p>
   <ul>
-    <li>xxx</li>
-    <li>xxx</li>
+    <li>it's an array, indexed at 0</li>
+    <li>each entry corresponds to communication channel</li>
+    <li>they can be unidirectional or bidirectional</li>
+    <li>typically, these are files...</li>
+  </ul>
+<p>
+PIC procs with file descriptors
+</section>
+
+<!-- ****************************** -->
+
+<section id="fd2">
+  <h2>FDs for other things than files</h2>
+  ... but they can be many other things too:
+  <p>
+  <ul>
+    <li><em>anonymous pipes</em> to other processes</li>
+    <li><em>named pipes</em></li>
+    <li><em>network sockets</em></li>
+    <li><em>UNIX-domain sockets</em></li>
+    <li>block devices (disks, tapes etc)</li>
+    <li>character devices (keyboards, ttys, speakers etc)</li>
   </ul>
 </section>
 
 <!-- ****************************** -->
 
-<section id="xxx">
-  <h2>xxxtitle</h2>
-  <ul>
-    <li>xxx</li>
-    <li>xxx</li>
-  </ul>
+<section id="fd3">
+  <h2>Processes can have lots of FDs</h2>
+  Modern LINUX systems allocate a lot of FDs to each process.
+  <p>
+  <small>It used to be that a process could have a maximum of something like 64 FDs,
+  nowadays it's more like 1024!</small>
+  <br>
+  <small>Below: file descriptors for process <em>mysqld</em> on <i>Ludmer</i> server (excerpt)</small>
+  <br>
+<pre data-trim>
+COMMAND  FD   TYPE       DEVICE   SIZE/OFF NAME
+mysqld    0r   CHR          1,3        0t0 /dev/null
+mysqld    1w   REG          8,5      18042 /var/log/mysqld.log
+mysqld    2w   REG          8,5      18042 /var/log/mysqld.log
+mysqld    3uW  REG          8,5 1226833920 /var/lib/mysql/ibdata1
+mysqld    4u   REG          8,4          0 /tmp/ibHSKNG9 (deleted)
+mysqld    5u   REG          8,4        473 /tmp/ibP57ycj (deleted)
+mysqld    6u   REG          8,4        103 /tmp/ibLQzkIs (deleted)
+mysqld    7u   REG          8,4          0 /tmp/ibfRYmeC (deleted)
+mysqld    8uW  REG          8,5    5242880 /var/lib/mysql/ib_logfile0
+mysqld    9uW  REG          8,5    5242880 /var/lib/mysql/ib_logfile1
+mysqld   10u  IPv4     55802736        0t0 *:mysql (LISTEN)
+mysqld   11u   REG          8,4       1467 /tmp/ibROAYLL (deleted)
+mysqld   12u  unix 0xfff882ed80        0t0 /var/lib/mysql/mysql.sock
+mysqld   13u  IPv4     61704300        0t0 192.168.122.1:mysql->ccna:48212 (ESTABLISHED)   
+mysqld   15u   REG          8,5      30720 /var/lib/mysql/wp_ludmer/wp_options.MYI
+mysqld   16u   REG          8,5     580904 /var/lib/mysql/wp_ludmer/wp_options.MYD
+mysqld   37u   REG          8,5       4096 /var/lib/mysql/canadachina/MMSE.MYI
+mysqld   38u   REG          8,5       1704 /var/lib/mysql/canadachina/MMSE.MYD
+mysqld   <em>52</em>u   REG          8,5      25300 /var/lib/mysql/wp_nist/wp_usermeta.MYD
+
+</pre>
 </section>
 
 <!-- ****************************** -->
 
-<section id="xxx">
-  <h2>xxxtitle</h2>
-  <ul>
-    <li>xxx</li>
-    <li>xxx</li>
-  </ul>
+<section id="fd4">
+  <h2>FDs are reusable</h2>
+  File descriptors go through a cycle of re-use:
+  <p>
+  <ol>
+    <li>they are opened and connected to a resource</li>
+    <li>data is sent and/or received</li>
+    <li>they are closed</li>
+    <li>they can be reopened to another resource</li>
+    <li>etc</li>
+  </ol>
 </section>
 
 <!-- ****************************** -->
 
-<section id="xxx">
-  <h2>xxxtitle</h2>
+<section id="fdnotfh">
+  <h2>A common confusion</h2>
+  File descriptors are lower level than <strong>file handles</strong>.
+  <p>
+  What we typically call a file handle (FH) is often the product of
+  a library providing an API to the file descriptors.
+  <p>
+  The most common one is the C stdio library, which works on structures
+  that hide the file descriptors.
+  <p>
+  <h4>Opening a file using file descriptors</h4>
+<pre class="transp"><code class="c" data-trim>
+int fd;
+fd = open("/tmp/my_file",O_RDONLY);
+</code></pre>
+  <h4>Opening a file using the C stdio file handles</h4>
+<pre class="transp"><code class="c" data-trim>
+File *fh;
+fh = fopen("/tmp/my_file","r");
+</code></pre>
+</section>
+
+<!-- ****************************** -->
+
+<section id="fdstd">
+  <h2>The three standard FDs</h2>
+  A common convention for UNIX processes are three standard FDs
+  <p>
   <ul>
-    <li>xxx</li>
-    <li>xxx</li>
+    <li><i>Standard input</i> ('STDIN', file descriptor 0)<br>
+      <small>a stream going into the process</small>
+    </li>
+    <li><i>Standard output</i> ('STDOUT' file descriptor 1)<br>
+      <small>a stream going out of the process</small>
+    </li>
+    <li><i>Standard error</i> ('STDERR', file descriptor 2)<br>
+      <small>a stream going out the process too</small>
+    </li>
   </ul>
+<p>
+PIC proc with STDIN STDOUT STDERR
 </section>
 
 <!-- ****************************** -->
@@ -927,7 +1018,7 @@ LAST SLIDE
     .reveal strong {
       color: #0ff;  /* funny, I'm using RGB with only three digits today */
     }
-    .horiz {
+    .reveal .cell {
       display: table-cell;
     }
     .reveal th {
@@ -935,6 +1026,12 @@ LAST SLIDE
     }
     .reveal .transp {
       background-color: transparent;
+    }
+    .reveal b {
+      color: #00f;
+    }
+    .reveal i {
+      color: #f00;
     }
   </style>
 </body>
