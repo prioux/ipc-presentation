@@ -125,12 +125,12 @@
   Surprisingly, the operating system has <strong>no</strong> mechanism
   for creating new processes from scratch.
   <p class="fragment">
-  A processes can only be created by another process...
+  A process can only be created by another process...
   <p class="fragment">
   ... by making a <em>perfect copy</em> of itself.
   <p class="fragment">
   This is also how the tree structure emerges. The copy
-  becomes a child of the original process.
+  becomes a <em>child</em> of the original process.
   </p>
 </section>
 
@@ -404,6 +404,12 @@ end
       <th>Use it for</th>
     </tr>
     <tr>
+      <td>INT&nbsp;(2)</td>
+      <td>terminates process</td>
+      <td>Yes</td>
+      <td>User wants out?</td>
+    </tr>
+    <tr>
       <td>TERM&nbsp;(15)</td>
       <td>terminates process</td>
       <td>Yes</td>
@@ -470,17 +476,22 @@ while true do
   float = float.next_float
 end
 </code></pre>
-In a terminal:
+  In two terminals:
+  <div class="cell">
 <pre>
-<em>unix%</em> ruby test_inc.rb &amp;
-[2] 3272
-<em>unix%</em> kill -USR1 3272
-Float=1.158144256e-315
-<em>unix%</em> kill -USR1 3272
-Float=1.826497665e-315
-<em>unix%</em> kill -USR1 3272
-Float=1.014102923e-314
+<em>unix%</em> ruby test_inc.rb                 
+Float=1.158144256e-315                          
+Float=1.826497665e-315                          
+Float=1.014102923e-314                          
 </pre>
+  </div>
+  <div class="cell">
+<pre>
+<em>unix%</em> kill -USR1 3272                        
+<em>unix%</em> kill -USR1 3272                        
+<em>unix%</em> kill -USR1 3272                        
+</pre>
+  </div>
 </section>
 
 <!-- ****************************** -->
@@ -595,7 +606,7 @@ This way we know that no task is left at an inconsistent state.
 <!-- ****************************** -->
 
 <section id="envfork2">
-  <h2>fork() often lead to exec()</h2>
+  <h2>fork() often leads to exec()</h2>
   If processes create children that are identical,<br>
   how can there be processes of different types?
   <p>
