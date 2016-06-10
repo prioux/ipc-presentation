@@ -16,7 +16,7 @@
 <!-- ############################## -->
 <!-- ############################## -->
 
-<section>
+<section id="top">
 
 <section id="title">
   <h1>Interprocess Communication</h1>
@@ -182,8 +182,6 @@
 
 <section id="separate">
 
-<!-- ****************************** -->
-
 <section id="sep1">
   <h2>One at a time!</h2>
   Wait! What if the two processes run separately:
@@ -207,7 +205,7 @@
 <!-- ############################## -->
 <!-- ############################## -->
 
-<section id ="signals">
+<section id="signals">
 
 <section id="sig1">
   <h2>Signals 1</h2>
@@ -494,7 +492,7 @@ Float=1.014102923e-314
   <p>
 <pre class="transp"><code data-trim class="ruby">
 # Ruby from CBRAIN (simplified)
-task_list.each |task| do   # iterates over each task, likely hundreds
+task_list.each do |task|   # iterates over each task, likely hundreds
   task.archive_work_dir()  # this can take several minutes
 done
 </code></pre>
@@ -525,7 +523,7 @@ keep_going = true
 
 Signal.trap("TERM")  { keep_going = false }
 
-task_list.each |task| do   # iterates over each task, likely hundreds
+task_list.each do |task|   # iterates over each task, likely hundreds
   task.archive_work_dir()  # this can take several minutes
   break if ! keep_going    # break from the loop if signal received!
 done
@@ -540,7 +538,7 @@ This way we know that no task is left at an inconsistent state.
 <!-- ############################## -->
 <!-- ############################## -->
 
-<section>
+<section id="env">
 
 <section id="env1">
   <h2>Environment variables</h2>
@@ -837,7 +835,7 @@ def
 <!-- ############################## -->
 <!-- ############################## -->
 
-<section>
+<section id="fd">
 
 <!-- ****************************** -->
 
@@ -1179,7 +1177,7 @@ line 3 of 'file'
 
 <!-- ****************************** -->
 
-<section id="fdredir">
+<section id="fdredir1">
   <h2>Bash redirection</h2>
   The bash shell (and other shells too) have
   syntax to specify how to connect the standard channels
@@ -1206,7 +1204,7 @@ line 3 of 'file'
 
 <!-- ****************************** -->
 
-<section>
+<section id="fdredir2">
 
   <div class="cell">
 <pre>
@@ -1272,9 +1270,9 @@ def.txt: no such file or directory
 
 <!-- ****************************** -->
 
-<section>
+<section id="teaser">
   <h2>A teaser for what's next</h2>
-  Here's an excerpt from the Loris <em>install.sh</em> script:
+  Here's an excerpt from the <i>LORIS</i> <em>install.sh</em> script:
   <p>
 <pre class="transp"><code class="bash" data-trim>
 START=`date "+%Y-%m-%dT%H:%M:%S"`
@@ -1300,7 +1298,7 @@ exec 1&gt;$LOGPIPE 2&gt;&1
 <!-- ############################## -->
 <!-- ############################## -->
 
-<section>
+<section id="pipe">
 
 <section id="next">
   <h2>NEXT WEEK! (Todo)</h2>
