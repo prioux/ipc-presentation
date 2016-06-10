@@ -29,7 +29,7 @@
 <section id="content">
   <h2>Table of content</h2>
   <ul>
-    <li>Prologue: processes</li>
+    <li>Prologue: what are processes?</li>
     <li>IPC mechanisms:
       <ul>
         <li>signals</li>
@@ -40,7 +40,7 @@
         <li>sockets</li>
       </ul>
     </li>
-    <li>Epilogue: blah</li>
+    <li>Epilogue: Quiz!</li>
   </ul>
 </section>
 
@@ -53,13 +53,13 @@
 <section id="prologue">
 
 <section id="aboutprocs">
-  <h2>About processes 1</h2>
+  <h2>About processes</h2>
   <strong>The obvious stuff:</strong> a UNIX process is:
   <p>
   <ul>
     <li>an area of a computer's memory</li>
     <li>where the processor executes some instructions</li>
-    <li>and stores some data</li>
+    <li>and manages some data</li>
   </ul>
 </section>
 
@@ -76,7 +76,7 @@
     <li>various time accounting</li>
   </ul>
   <p>
-  These things aren't that important for this discussion.
+  These things <i>aren't that important</i> for this discussion.
 </section>
 
 <!-- ****************************** -->
@@ -88,32 +88,33 @@
   <ul>
     <li>processes are organized in a tree</li>
     <li>each process has a <em>parent process</em></li>
-    <li>so each process also as a <em>ppid</em></li>
+    <li>so each process also as a parent process ID (<em>ppid</em>)</li>
   </ul>
 </section>
 
 <!-- ****************************** -->
 
 <section id="proctree">
-  PIC PROCESS TREE
+  <h2>A tree of processes</h2>
+  <img src="images/proctree.png">
 </section>
 
 <!-- ****************************** -->
 
 <section id="attimportant">
   <h2>Some important attributes</h2>
-
-  Processes have these three things
+  <i>All</i> processes have these three things
   which will be important:
   <p>
   <ul>
-    <li>environment variables</li>
-    <li>signal handlers</li>
-    <li>file descriptors</li>
+    <li><span style="color: blue">environment variables</span></li>
+    <li><span style="color: red">signal handlers</span></li>
+    <li><span style="color: #0f0">file descriptors</span></li>
   </ul>
   <p>
-  These things will be described in more details later on.
-PIC procs with these things
+  These are the essential components of IPC.
+  <p>
+  <img src="images/attimportant.png">
 </section>
 
 <!-- ****************************** -->
@@ -128,7 +129,8 @@ PIC procs with these things
   <p class="fragment">
   ... by making a <em>perfect copy</em> of itself.
   <p class="fragment">
-  This is also how the tree structure emerges.
+  This is also how the tree structure emerges. The copy
+  becomes a child of the original process.
   </p>
 </section>
 
@@ -136,11 +138,11 @@ PIC procs with these things
 
 <section id="procdestroy">
   <h2>How processes are destroyed</h2>
-   They can simply finish their job.
-   <p>
-   They can be <em>terminated</em> by the operating system or by other processes.
-   <p>
-   The tree structure gets adjusted (no details here)
+   <ul>
+     <li>They can simply finish their job</li>
+     <li>They can be <em>terminated</em> by the operating system or by other processes</li>
+     <li>And then the tree structure gets adjusted (no details here)</li>
+   </ul>
 </section>
 
 </section>
@@ -153,22 +155,22 @@ PIC procs with these things
 
 <section id="about1">
   <h2>What IPC is about</h2>
-  This presentation is about how <em>two processes</em> can
-  send <em>'information'</em> to each other.
+  This presentation is about the general concept of how <em>two processes</em> can
+  send <i>information</i> to each other.
   <p>
-  PIC two procs
+  <img src="images/whatabout.png">
 </section>
 
 <!-- ****************************** -->
 
-<section id="context1">
-  <h2>Two situations...</h2>
+<section id="proccontext">
+  <h2>Two IPC situations...</h2>
   <p class="fragment">
-    Two processes on the same computer
-    PIC 1
+    Two processes on the <em>same</em> computer
+    <img src="images/proccontext1.png">
   <p class="fragment">
-    Two processes on the different computers
-    PIC 2
+    Two processes on the <em>different</em> computers
+    <img src="images/proccontext2.png">
   </p>
 </section>
 
@@ -184,28 +186,19 @@ PIC procs with these things
 
 <section id="sep1">
   <h2>One at a time!</h2>
-  When processes run separately:
-  <p>
+  Wait! What if the two processes run separately:
   <ul>
     <li>one after the other...</li>
-    <li>not at the same...</li>
+    <li>never at the same time...</li>
   </ul>
-  <p>
+  <br>
+  <img src="images/sep2.png">
   ... there is only <em>one</em> way they can
-  send information to each other.
-  <p>
+  send information to each other.<br>
   Can you guess how?
   <p class="fragment">
   By creating files.
   </p>
-</section>
-
-<!-- ****************************** -->
-
-<section id="sep2">
-  <h2>One at a time! 2</h2>
-
-   PIC WRITE, EXIT, READ
 </section>
 
 </section>
@@ -225,14 +218,14 @@ PIC procs with these things
   The only content is the type of signal, a simple number.
   <p>
   <ul>
-    <li>the types are encoded as a simple number from 1 to N.</li>
+    <li>the types are encoded as a number from 1 to N.</li>
     <li>MacOS X (BSD-like) has about 30 signals</li>
     <li>Linux has about 60 signals</li>
     <li>they act like very quick <em>pings</em>
     <li>for convenience, short names are given to each type</li>
   </ul>
   <p>
-  E.g: Signal #<em>11</em> is called <em>SIGSEGV</em>.
+  E.g: Signal #<em>11</em> is called <strong>SIGSEGV</strong>.
 </section>
 
 <!-- ****************************** -->
@@ -243,7 +236,7 @@ PIC procs with these things
   <p>
 
 <pre>
-macosx% <em>kill -l</em>
+<em>macosx%</em> kill -l
  1) SIGHUP       2) SIGINT       3) SIGQUIT      4) SIGILL
  5) SIGTRAP      6) SIGABRT      7) SIGEMT       8) SIGFPE
  9) SIGKILL     10) SIGBUS      11) SIGSEGV     12) SIGSYS
@@ -307,14 +300,17 @@ SIGSEGV      11       Core    Invalid memory reference
 
 <section id="sigsend1">
   <h2>Sending signals 1</h2>
-  Signals are sent from one process to another.<p>
+  Signals are sent from one process to another <i>on the same computer</i>.
+  <p>
   To send a signal you need two values:
   <p>
   <ul>
-    <li>the <em>number</em> for the type of signal
-    <li>(it's better to use constants instead of the raw number)</li>
+    <li>the <em>number</em> for the type of signal, e.g. <strong>11</strong>
+    <li>(though it's better to use constants, e.g. <strong>SIGSEGV</strong> instead)</li>
     <li>the process ID (<em>pid</em>) of the receiver</li>
-    <li>most languages have a simple method or function that takes these two values</li>
+    <li>most languages have a simple method or function that takes these two values
+        and send the signal
+    </li>
   </ul>
 </section>
 
@@ -322,11 +318,12 @@ SIGSEGV      11       Core    Invalid memory reference
 
 <section id="sigsend2">
   <h2>Sending signals 2</h2>
-  These examples will all send the signal #15, 'SIGTERM' to a process with pid 1234 :
+  These examples will all send the signal #<em>15</em>, <strong>SIGTERM</strong><br>
+  to a process with pid <em>1234</em> :
   <p>
   <ul>
     <li>Bash: <pre>kill -TERM 1234 # same as kill -15 1234</pre></li>
-    <li>Perl: <pre>kill(SIGTERM,1234); # SIGTERM is a constant </pre></li>
+    <li>Perl: <pre>kill(SIGTERM,1234); # SIGTERM is a constant   </pre></li>
     <li>PHP: <pre>posix_kill(1234, SIGTERM);</pre></li>
     <li>Ruby: <pre>Process.kill("TERM", 1234)</pre></li>
   </ul>
@@ -336,16 +333,16 @@ SIGSEGV      11       Core    Invalid memory reference
 
 <section id="sigrec1">
   <h2>Receiving signals 1</h2>
-  A process can set up <em>handlers</em> to run a<br> piece of code when
-  a signal is received.
+  A process can set up <em>handlers</em> to run a<br>
+  piece of code when a signal is received.
   <p>
   <ul>
-    <li>not all signals can be handled (e.g. SIGKILL)</li>
-    <li>the handler is run asynchronously</li>
+    <li>not all signals can be handled (e.g. #<em>9</em> a.k.a. <strong>SIGKILL</strong>)</li>
+    <li>the handler is run asynchronously from the code of the process</li>
     <li>handlers are not re-entrant</li>
-    <li>only one signal at a time can be handle</li>
+    <li>only one signal at a time can be handled</li>
     <li>there is a default behavior for most signals</li>
-    <li>you can't even tell <strong>what other process send the signal!</strong>
+    <li>you <i>can't tell</i> what other process has sent the signal!
   </ul>
 </section>
 
@@ -353,26 +350,24 @@ SIGSEGV      11       Core    Invalid memory reference
 
 <section id="sigrec2">
   <h2>Receiving signals 2</h2>
-  In all languages, this consists in setting up a method or subroutine
-  to handle a signal, and then telling the OS to invoke that method when
-  the signal is received.
+  In all languages, this consists in setting up a method or<br>
+  subroutine to handle a signal, and then telling the OS to<br>
+  invoke that method when the signal is received.
   <p>
-
   <div class="cell">
   <ul>
     <li>Bash:
-    <!-- I need two stupid trailing whitespaces -->
 <pre>
-function myUSRfunc { echo Hello }  
-trap myUSRfunc SIGUSR1
+function oh_no { echo Hello }   
+trap oh_no SIGUSR1
 </pre>
     </li>
     <li>Perl:
 <pre>
-sub myUSRhandler {
+sub oh_no {
   print "Hello\n"
 }
-$SIG{'USR1'} = \&myUSRhandler;
+$SIG{'USR1'} = \&oh_no;
 </pre>
     </li>
   </ul>
@@ -382,8 +377,8 @@ $SIG{'USR1'} = \&myUSRhandler;
   <ul>
     <li>PHP:
 <pre>
-function myUSRhandler($s) { echo "Hello" }   
-pcntl_signal(SIGUSR1, "myUSRhandler");
+function oh_no($s) { echo "Hello" }   
+pcntl_signal(SIGUSR1, "oh_no");
 </pre>
     </li>
     <li>Ruby:
@@ -391,7 +386,7 @@ pcntl_signal(SIGUSR1, "myUSRhandler");
 Signal.trap("USR1") do
   puts "Hello"
 end
-
+&nbsp;
 </pre>
     </li>
   </ul>
@@ -495,25 +490,33 @@ Float=1.014102923e-314
 <section id="sigrecb1">
   <h2>Example B, 1</h2>
   In <strong>CBRAIN</strong> we have a maintenance process that regularly
-  archives some task's work directories. The main Ruby loop looks like this:
+  archives some tasks' work directories. The main Ruby loop looks like this:
   <p>
 <pre class="transp"><code data-trim class="ruby">
 # Ruby from CBRAIN (simplified)
-task_list.each |task| do   # iterates over each task
+task_list.each |task| do   # iterates over each task, likely hundreds
   task.archive_work_dir()  # this can take several minutes
 done
 </code></pre>
   <p>
-  If we kill this process at an arbitrary time, we will likely end up with
-  work directories partly archives, with DB states inconsistent, etc.
+  Sometimes, maintenance (or shutdowns) need to be<br>
+  performed while this process has already started.
+  <p>
+  If we kill this process at an arbitrary time, we will likely end up with:
+  <ul>
+    <li>work directories only partly archived</li>
+    <li>the database state inconsistent</li>
+    <li>probably leftover temporary files</li>
+  </ul>
 </section>
 
 <!-- ****************************** -->
 
 <section id="sigrecb2">
   <h2>Example B, 2</h2>
-   What we do instead is allow the admin to tell the process to finish up
-   whatever task is currently being archived, then stop before doing the next.
+   What we do instead is allow the admin to tell<br>
+   the process to finish up whatever task is currently<br>
+   being archived, then stop before doing the next.
    <p>
 <pre class="transp"><code data-trim class="ruby">
 # Ruby from CBRAIN (simplified)
@@ -522,9 +525,9 @@ keep_going = true
 
 Signal.trap("TERM")  { keep_going = false }
 
-task_list.each |task| do   # iterates over each task
+task_list.each |task| do   # iterates over each task, likely hundreds
   task.archive_work_dir()  # this can take several minutes
-  break if ! keep_going    # break from the loop
+  break if ! keep_going    # break from the loop if signal received!
 done
 </code></pre>
 <p>
@@ -541,7 +544,7 @@ This way we know that no task is left at an inconsistent state.
 
 <section id="env1">
   <h2>Environment variables</h2>
-  Each process maintain a set of environment variables.
+  Each process maintains a set of environment variables.
   <p>
   <ul>
     <li>they are simple pairs of key=value</li>
@@ -557,12 +560,13 @@ This way we know that no task is left at an inconsistent state.
 
 <section id="envmis">
   <h2>Misunderstandings</h2>
-  People think setting environment variables affect magically all
-  the programs they run. In fact:
+  People think setting environment variables<br>
+  affect magically all the programs they run. In fact:
   <p>
   <ul>
-    <li>each process has <em>its own private set</em> of environment variables</li>
-    <li>it is <em>not possible</em> for a process to change the environment variables of any another process</li>
+    <li>each process has <i>its own private set</i> of environment variables</li>
+    <li>a process can set, change or delete its own variables</li>
+    <li>but it is <em>not possible</em> for a process to change the environment variables of any <em>other</em> process</li>
   </ul>
   <p>
   <strong>Puzzle: so how can this be even used for IPC ?</strong>
@@ -570,21 +574,40 @@ This way we know that no task is left at an inconsistent state.
 
 <!-- ****************************** -->
 
-<section id="envfork">
-  <h2>Environment variables are inherited</h2>
-  The key is that processes are created by forking from other processes.
+<section id="envfork1">
+  <h2>Environment variables<br>are inherited</h2>
+  Processes are created by forking from other processes.
   <p>
   <ul>
     <li>a parent process #123 sets <em>ABC=def</em> in its environment</li>
-    <li>if the process fork(), the child process #987 also has <em>ABC=def</em></li>
-    <li>all environment variables are copied exactly, in fact.</li>
+    <li>when the process <em>fork()</em>, the child process #987 also has <em>ABC=def</em></li>
+    <li><strong>all</strong> environment variables are <i>copied</i> exactly, in fact.</li>
   </ul>
   <p>
-  The end result is that a process has a capability to communicate a set of
-  <em>X=y</em> values to their child processes.
+  The end result is that a process has a capability to<br>
+  transfer a set of <em>X=y</em> values to their child processes.
   <p>
   Obviously, this communication mechanism is <strong>unidirectional</strong>:
   the information flows only from parents to their children.
+  <p>
+  Also, it can only be done once,<br>
+  just before the child process is created.
+</section>
+
+<!-- ****************************** -->
+
+<section id="envfork2">
+  <h2>fork() often lead to exec()</h2>
+  If processes create children that are identical,<br>
+  how can there be processes of different types?
+  <p>
+  <ul>
+    <li>yes, after <em>fork()</em>, the child process is <em>identical</em></li>
+    <li>but often, the child process elects to change its executable code
+        by invoking <em>exec()</em></li>
+    <li>this replaces the code, but <em>keeps the environment variables intact</em></li>
+  </ul>
+  <img src="images/envfork2.png">
 </section>
 
 <!-- ****************************** -->
@@ -595,15 +618,15 @@ This way we know that no task is left at an inconsistent state.
   <p>
   <ul>
     <li>set environment variables of a <em>shell</em> process</li>
-    <li>the shell itself probably doesn't care about the variables</li>
-    <li>but other processed launched will inherit them and use them.</li>
+    <li>the shell itself likely doesn't care about those variables</li>
+    <li>but other processes launched will inherit them and use them</li>
   </ul>
   <p>
 <pre>
-<em>unix%</em> export VISUAL=/bin/vim
-<em>unix%</em> git commit  # will launch <em>vim</em> to edit commit message
+<em>unix%</em> export VISUAL=/bin/vim  # how bash sets its own environment variables
+<em>unix%</em> git commit              # will launch <em>vim</em> to edit commit message
 <em>unix%</em> export VISUAL=/bin/nano
-<em>unix%</em> git commit  # now will launch <em>nano</em> to edit commit message
+<em>unix%</em> git commit              # now will launch <em>nano</em> to edit commit message
 </pre>
 </section>
 
@@ -611,12 +634,13 @@ This way we know that no task is left at an inconsistent state.
 
 <section id="envenv1">
   <h2>The <em>env</em> command 1</h2>
-  One of the simplest example is the <em>env</em> UNIX command.
+  One of the simplest example is the UNIX command called <em>env</em> .
   <p>
   When run with </strong>no arguments</strong>:
   <p>
   <ul>
-    <li>it just prints all the environment variables it has received from its shell</li>
+    <li>it just prints all the environment variables<br>
+        it has received from its parent</li>
   </ul>
   <p>
 <pre>
@@ -624,15 +648,17 @@ This way we know that no task is left at an inconsistent state.
 ABC=def
 </pre>
   <p>
-  This is a great way to inspect what are the currently set environment variables.
+  This is a great way to inspect what are the<br>
+  environment variables currently set in your shell.
 </section>
 
 <!-- ****************************** -->
 
 <section id="envenv2">
   <h2>The <em>env</em> command 2</h2>
-  <li>When run with some ENV assignments in front of another <strong>command</strong> in argument...
-<p>
+  When run with some ENV assignments in front<br>
+  of another <strong>command</strong> in argument...
+  <p>
 <pre>
 env A=b C=d E=f <strong>command</strong> arg1 arg2 arg3 ...
 </pre>
@@ -660,7 +686,7 @@ TMPDIR=/home/prioux/tmp
 <!-- ****************************** -->
 
 <section id="envsystem">
-  <h2>System-side examples</h2>
+  <h2>System variables: examples</h2>
   (Very few) environment variables have system meanings; the values they
   have directly affect some system aspect of the process.
   <p>
@@ -672,13 +698,13 @@ TMPDIR=/home/prioux/tmp
     </tr>
     <tr>
       <td>PATH</td>
-      <td>dirs to search for executables</td>
-      <td>/bin:/usr/bin:/home/prioux/bin:etc</td>
+      <td>dirs to search for executables (when running <em>exec()</em>)</td>
+      <td><pre>/bin:/usr/bin:/sbin</pre></td>
     </tr>
     <tr>
       <td>LD_LIBRARY_PATH</td>
       <td>dirs to search for libraries</td>
-      <td>/lib:/usr/lib:etc</td>
+      <td><pre>/lib:/usr/lib</pre></td>
     </tr>
   </table>
 </section>
@@ -686,9 +712,9 @@ TMPDIR=/home/prioux/tmp
 <!-- ****************************** -->
 
 <section id="envuser">
-  <h2>User-side examples</h2>
-  Most environment variables are specific to some programs,
-  or are the results of agreed-upong conventions.
+  <h2>User or app variables: examples</h2>
+  Most environment variables are specific to<br>
+  some programs, or are defined by conventions.
   <p>
   <table>
     <tr>
@@ -699,27 +725,27 @@ TMPDIR=/home/prioux/tmp
     <tr>
       <td>VISUAL</td>
       <td>if set, what program to use to launch a visual text editor</td>
-      <td>/bin/vim</td>
+      <td><pre>/bin/vim</pre></td>
     </tr>
     <tr>
       <td>EDITOR</td>
       <td>if set, what program to use to launch a text editor</td>
-      <td>/bin/ed</td>
+      <td><pre>/bin/ed</pre></td>
     </tr>
     <tr>
       <td>PAGER</td>
       <td>if set, what program to use to launch a pager</td>
-      <td>/usr/bin/less</td>
+      <td><pre>/usr/bin/less</pre></td>
     </tr>
     <tr>
       <td>DISPLAY</td>
       <td>X-window client programs get the socket to the X-window server</td>
-      <td>/tmp/sockets-501/xwin:0</td>
+      <td><pre>/tmp/socks-5/xwin:0</pre></td>
     </tr>
     <tr>
       <td>LESS</td>
       <td>options for the pager <em>less</em></td>
-      <td>MeqisXRF</td>
+      <td><pre>MeqisXRF</pre></td>
     </tr>
   </table>
 </section>
@@ -729,7 +755,7 @@ TMPDIR=/home/prioux/tmp
 <section id="envman">
   <h2>In the manual pages</h2>
   Most manual pages describe, at their end, the environment variables
-  used by the programs.
+  used by their programs.
   <p>
 <pre>
 <em>unix%</em> man less
@@ -743,7 +769,7 @@ SYNOPSIS
        less --help
        less -V
 
-<strong>(skipped through 'more')</strong>
+<strong>(skipped through using 'more')</strong>
 
 ENVIRONMENT VARIABLES
        EDITOR The name of the editor (used for the v command).
@@ -752,7 +778,7 @@ ENVIRONMENT VARIABLES
 
        LESS   Options which are passed to less automatically.
 
-<strong>(skipped through 'more')</strong>
+<strong>(skipped through using 'more')</strong>
 
 <em>unix%</em> export PAGER=less    # from now on I page using 'less'
 <em>unix%</em> export LESS=MeqisXRF # also, 'less' will default to these options
@@ -781,6 +807,30 @@ ENVIRONMENT VARIABLES
 
 </section>
 
+<!-- ****************************** -->
+
+<section id="envsource">
+  <h2>'source' statements</h2>
+  Some text files, known as initialization scripts,<br>
+  often set environments variables.
+  <p>
+  Some are application-specific:<br>e.g. the <em>init.sh</em> in the <i>MNI Quarantine</i>.
+  <p>
+  Some are used for user preferences or customizations:<br>e.g. <em>$HOME/.bashrc</em>
+  <p>
+  In all cases, the script must be <strong>sourced</strong>, not executed.
+  <p>
+<pre>
+<em>unix%</em> cat init.sh
+export ABC=def
+<em>unix%</em> bash init.sh   # will not do anything: it's a distinct subprocess!
+<em>unix%</em> echo $ABC
+<em>unix%</em> source init.sh # affects current shell: it reads the lines itself
+<em>unix%</em> echo $ABC
+def
+</pre>
+</section>
+
 </section>
 
 <!-- ############################## -->
@@ -793,23 +843,24 @@ ENVIRONMENT VARIABLES
 
 <section id="fd1">
   <h2>File descriptors</h2>
-  Each process maintains a private list of file descriptors (<em>FD</em>)
+  Each process maintains a private list of file descriptors (<em>FDs</em>)
   <p>
   <ul>
     <li>it's an array, indexed at 0</li>
     <li>each entry corresponds to communication channel</li>
+    <li>they may not all be in use</li>
     <li>they can be unidirectional or bidirectional</li>
-    <li>typically, these are files...</li>
   </ul>
-<p>
-PIC procs with file descriptors
+  <p>
+  <img src="images/fd1.png">
 </section>
 
 <!-- ****************************** -->
 
 <section id="fd2">
   <h2>FDs for other things than files</h2>
-  ... but they can be many other things too:
+  Typically they are connected to <em>files</em>...<br>
+  but they can be many other things too:
   <p>
   <ul>
     <li><em>anonymous pipes</em> to other processes</li>
@@ -847,13 +898,12 @@ mysqld    9uW  REG          8,5    5242880 /var/lib/mysql/ib_logfile1
 mysqld   10u  IPv4     55802736        0t0 *:mysql (LISTEN)
 mysqld   11u   REG          8,4       1467 /tmp/ibROAYLL (deleted)
 mysqld   12u  unix 0xfff882ed80        0t0 /var/lib/mysql/mysql.sock
-mysqld   13u  IPv4     61704300        0t0 192.168.122.1:mysql->ccna:48212 (ESTABLISHED)   
+mysqld   13u  IPv4     61704300        0t0 192.168.122.1:mysql->ccna:48212 (ESTABLISHED)
 mysqld   15u   REG          8,5      30720 /var/lib/mysql/wp_ludmer/wp_options.MYI
 mysqld   16u   REG          8,5     580904 /var/lib/mysql/wp_ludmer/wp_options.MYD
 mysqld   37u   REG          8,5       4096 /var/lib/mysql/canadachina/MMSE.MYI
 mysqld   38u   REG          8,5       1704 /var/lib/mysql/canadachina/MMSE.MYD
 mysqld   <em>52</em>u   REG          8,5      25300 /var/lib/mysql/wp_nist/wp_usermeta.MYD
-
 </pre>
 </section>
 
@@ -879,17 +929,17 @@ mysqld   <em>52</em>u   REG          8,5      25300 /var/lib/mysql/wp_nist/wp_us
   File descriptors are lower level than <strong>file handles</strong>.
   <p>
   What we typically call a file handle (FH) is often the product of
-  a library providing an API to the file descriptors.
+  a library or language providing an API to the file descriptors.
   <p>
-  The most common one is the C stdio library, which works on structures
+  The most common one is the C <em>stdio</em> library, which works on structures
   that hide the file descriptors.
   <p>
-  <h4>Opening a file using file descriptors</h4>
+  <h4>Opening a file in C using file descriptors</h4>
 <pre class="transp"><code class="c" data-trim>
 int fd;
 fd = open("/tmp/my_file",O_RDONLY);
 </code></pre>
-  <h4>Opening a file using the C stdio file handles</h4>
+  <h4>Opening a file in C using the <em>stdio</em> file handles</h4>
 <pre class="transp"><code class="c" data-trim>
 File *fh;
 fh = fopen("/tmp/my_file","r");
@@ -913,75 +963,361 @@ fh = fopen("/tmp/my_file","r");
       <small>a stream going out the process too</small>
     </li>
   </ul>
-<p>
-PIC proc with STDIN STDOUT STDERR
+  <p>
+  <img src="images/fdstd.png">
 </section>
 
 <!-- ****************************** -->
 
-<section id="xxx">
-  <h2>xxxtitle</h2>
+<section id="fdanon">
+  <h2>Standard streams<br>connect to anything</h2>
+  Processes <em>do not care</em> what theirs<br>
+  standards streams are connected to.
+  <p>
+  They can be connected to files, the streams of other<br>
+  processes, terminals, etc, just like any other FDs.
+  <p>
+  <div class="cell"><img src="images/fdanon1.png"></div>
+  <div class="cell"><img src="images/fdanon2.png"></div>
+</section>
+
+<!-- ****************************** -->
+
+<section id="fdblocks">
+  <h2>Pipeline building blocks</h2>
+  The standard channels allow building<br>
+  pipelines by linking processes together
+  <p>
+  <img src="images/fdblocks.png">
+</section>
+
+<!-- ****************************** -->
+
+<section id="fd_cat">
+  <h2>Some useful building blocks</h2>
+  UNIX commands are part of a <em>toolbox</em> of processes<br>
+  that can be used to build such pipelines.
+  <img src="images/fd_cat.png">
+<pre>
+# 'cat' command: copies <em>all</em> input to output
+<em>unix%</em> cat
+hello how are you?
+<i>^D</i>
+hello how are you?
+</pre>
+</section>
+
+<!-- ****************************** -->
+
+<section id="fd_echo">
+  <img src="images/fd_echo.png">
+<pre>
+# 'echo' command: sends as string each argument, each separated by one space
+<em>unix%</em> echo hi    how    "are  you" my,friend
+hi how are  you my,friend
+</pre>
+</section>
+
+<!-- ****************************** -->
+
+<section id="fd_tee">
+  <img src="images/fd_tee.png">
+<pre>
+# 'tee' command: copies <em>all</em> input to output, and a copy to a separate file
+<em>unix%</em> tee myout
+hi there
+<i>^D</i>
+hi there
+<em>unix%</em> cat myout
+hi there
+</pre>
+</section>
+
+<!-- ****************************** -->
+
+<section id="fd_head">
+  <img src="images/fd_head.png">
+<pre>
+# 'head' command: copies <em>only the first N lines of</em> of input to output
+<em>unix%</em> head -2
+line 1
+line 2
+line 3
+<i>^D</i>
+line 1
+line 2
+</pre>
+</section>
+
+<!-- ****************************** -->
+
+<section id="fd_tail">
+  <img src="images/fd_tail.png">
+<pre>
+# 'tail' command: copies <em>only the last N lines of</em> of input to output
+<em>unix%</em> tail -2
+line 1
+line 2
+line 3
+<i>^D</i>
+line 2
+line 3
+</pre>
+</section>
+
+<!-- ****************************** -->
+
+<section id="fd_grep">
+  <img src="images/fd_grep.png">
+<pre>
+# 'grep' command: select <em>only the input lines matching a regex</em> and sends them to output
+<em>unix%</em> grep pierre
+natacha drinks coffee
+but pierre eats chocolate
+and tristan writes code
+<i>^D</i>
+but pierre eats chocolate
+</pre>
+</section>
+
+<!-- ****************************** -->
+
+<section id="fd_sort">
+  <img src="images/fd_sort.png">
+<pre>
+# 'sort' command: reads all lines, sorts them, then sends them to output
+<em>unix%</em> sort
+natacha drinks coffee
+but pierre eats chocolate
+and tristan writes code
+<i>^D</i>
+and tristan writes code
+but pierre eats chocolate
+natacha drinks coffee
+</pre>
+</section>
+
+<!-- ****************************** -->
+
+<section id="fd_cut">
+  <img src="images/fd_cut.png">
+<pre>
+# 'cut' command: select <em>part of lines</em> and sends them to output
+<em>unix%</em> cut -d: -f2,4
+pierre:rioux:le:fou
+alanis:morissette:the:singer
+justin:trudeau:le:politicien
+<i>^D</i>
+rioux:fou
+morissette:singer
+trudeau:politicien
+</pre>
+</section>
+
+<!-- ****************************** -->
+
+<section id="fd_uniq">
+  <img src="images/fd_uniq.png">
+<pre>
+# 'uniq' command: removes successive <em>duplicate lines</em> and sends them to output
+<em>unix%</em> uniq
+hello
+hello
+goodbye
+hello
+<i>^D</i>
+hello
+goodbye
+hello
+</pre>
+</section>
+
+<!-- ****************************** -->
+
+<section id="fd_gzip">
+  <img src="images/fd_gzip.png">
+<pre>
+# 'gzip' command: compress input stream and sends the compressed result to output
+<em>unix%</em> gzip
+pierre eats chocolate
+<i>^D</i>
+$@<i>~</i>Fz-#@<strong>0</strong>
+</pre>
+</section>
+
+<!-- ****************************** -->
+
+<section id="fdstdin">
+  <h2>Input stream: files or STDIN</h2>
+  Some commands act differently depending on how they
+  are invoked, when it comes to their <em>inputs</em>:
+  <p>
   <ul>
-    <li>xxx</li>
-    <li>xxx</li>
+    <li>With no arguments, they read from STDIN</li>
+    <li>(all of the previous examples did that)</li>
+    <li>With arguments, they read from each file in turn</li>
+  <ul>
+  <div class="cell">
+  <img src="images/fd_cat.png">
+<pre>
+<em>unix%</em> cat
+hello how are you?
+<i>^D</i>
+hello how are you?
+</pre>
+  </div>
+  <div class="cell">
+  <img src="images/fd_catF.png">
+<pre>
+<em>unix%</em> cat file
+line 1 of 'file'
+line 2 of 'file'
+line 3 of 'file'
+</pre>
+  </div>
+</section>
+
+<!-- ****************************** -->
+
+<section id="fdredir">
+  <h2>Bash redirection</h2>
+  The bash shell (and other shells too) have
+  syntax to specify how to connect the standard channels
+  to <em>files</em> before the command is run.
+  <p>
+
+  <div class="cell">
+<pre>
+<em>unix%</em> program 0&lt; file # fd 0 = stdin
+<em>unix%</em> program  &lt; file
+</pre>
+    <img src="images/fd_redirin.png">
+  </div>
+
+  <div class="cell">
+<pre>
+<em>unix%</em> program 1&gt; file # fd 1 = stdout
+<em>unix%</em> program  &gt; file
+</pre>
+    <img src="images/fd_redirout.png">
+  </div>
+
+</section>
+
+<!-- ****************************** -->
+
+<section>
+
+  <div class="cell">
+<pre>
+<em>unix%</em> program 2&gt; file # fd 2 = stderr
+</pre>
+    <img src="images/fd_redirerr.png">
+  </div>
+
+  <div class="cell">
+<pre>
+<em>unix%</em> program 0&lt; abc 1&gt; def 2&gt; xyz
+</pre>
+    <img src="images/fd_redirall.png">
+  </div>
+
+</section>
+
+<!-- ****************************** -->
+
+<section id="fdpipe">
+  <h2>Bash piping</h2>
+  The standard output of a process can be connected<br>
+  to the standard input of another one.
+  <p>
+  <div class="cell">
+<pre>
+<em>unix%</em> wc -l memoirs.txt
+7233
+</pre>
+    <img src="images/fd_wcmem.png">
+  </div>
+
+  <div class="cell">
+<pre>
+<em>unix%</em> cat memoirs.txt | wc -l
+7233
+</pre>
+    <img src="images/fd_catwc.png">
+  </div>
+</section>
+
+<!-- ****************************** -->
+
+<section id="fderr">
+  <h2>Standard error handling</h2>
+  <ul>
+    <li>often use for diagnostics or messages</li>
+    <li>can be redirected or merged with standard output</li>
+  </ul>
+<pre>
+<em>unix%</em> ls -l abc.txt def.txt
+def.txt: no such file or directory
+-rwxr-xr-x prioux wheel 12311 abc.txt
+<em>unix%</em> ls -l abc.txt def.txt &gt; out 2&gt; err
+<em>unix%</em> ls -l abc.txt def.txt | wc -l
+def.txt: no such file or directory
+1
+<em>unix%</em> ls -l abc.txt def.txt <i>2&gt;&amp;1</i> | wc -l
+2
+</pre>
+  <img src="images/fderr.png">
+</section>
+
+<!-- ****************************** -->
+
+<section>
+  <h2>A teaser for what's next</h2>
+  Here's an excerpt from the Loris <em>install.sh</em> script:
+  <p>
+<pre class="transp"><code class="bash" data-trim>
+START=`date "+%Y-%m-%dT%H:%M:%S"`
+LOGDIR="logs"
+LOGFILE="logs/install-$START.log"
+LOGPIPE=/tmp/pipe.$$
+mkfifo -m 700 $LOGPIPE
+trap "rm -f $LOGPIPE" EXIT
+tee -a &lt;$LOGPIPE $LOGFILE &amp;
+exec 1&gt;$LOGPIPE 2&gt;&1
+</code></pre>
+  <p>
+  Lots of weird things in there, eh?
+  <p>
+  An the author of that is? (press space)
+  <p class="fragment">
+  Pierre Rioux
+</section>
+
+</section>
+
+<!-- ############################## -->
+<!-- ############################## -->
+<!-- ############################## -->
+
+<section>
+
+<section id="next">
+  <h2>NEXT WEEK! (Todo)</h2>
+  <ul>
+    <li>named pipes</li>
+    <li>real pipes</li>
+    <li>popen()</li>
+    <li>sockets</li>
+    <li>UNIX-domain sockets</li>
+    <li>quiz!</li>
   </ul>
 </section>
 
 <!-- ****************************** -->
 
 <section id="xxx">
-  <h2>xxxtitle</h2>
-  <ul>
-    <li>xxx</li>
-    <li>xxx</li>
-  </ul>
-</section>
-
-<!-- ****************************** -->
-
-<section id="xxx">
-  <h2>xxxtitle</h2>
-  <ul>
-    <li>xxx</li>
-    <li>xxx</li>
-  </ul>
-</section>
-
-<!-- ****************************** -->
-
-<section id="xxx">
-  <h2>xxxtitle</h2>
-  <ul>
-    <li>xxx</li>
-    <li>xxx</li>
-  </ul>
-</section>
-
-<!-- ****************************** -->
-
-<section id="xxx">
-  <h2>xxxtitle</h2>
-  <ul>
-    <li>xxx</li>
-    <li>xxx</li>
-  </ul>
-</section>
-
-<!-- ****************************** -->
-
-<section id="xxx">
-  <h2>xxxtitle</h2>
-  <ul>
-    <li>xxx</li>
-    <li>xxx</li>
-  </ul>
-</section>
-
-<!-- ****************************** -->
-
-<section id="xxx">
-LAST SLIDE
-  <h2>xxxtitle</h2>
+  <h2>title here</h2>
   <ul>
     <li>xxx</li>
     <li>xxx</li>
@@ -1007,6 +1343,19 @@ LAST SLIDE
     hljs.initHighlightingOnLoad();
   </script>
   <style>
+    .reveal h1,
+    .reveal h2,
+    .reveal h3,
+    .reveal h4,
+    .reveal h5 {
+      color: #ffffff;
+      text-shadow: 0.0em 0.0em 0.2em #0cc;
+    }
+    .reveal section img {
+      background: transparent;
+      border: none;
+      box-shadow: none;
+    }
     .reveal pre {
       background: #033;
       padding: 0.2em 0.5em 0.3em 0.5em;
@@ -1022,7 +1371,7 @@ LAST SLIDE
       display: table-cell;
     }
     .reveal th {
-      color: #0da;
+      color: #0aa;
     }
     .reveal .transp {
       background-color: transparent;
