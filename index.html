@@ -1188,6 +1188,40 @@ line 3 of 'file'
 
 <!-- ****************************** -->
 
+<section id="fdgrepcut">
+  <h2>Grep &amp; Cut</h2>
+  The <em>grep</em> and <em>cut</em> command, when used together to
+  parse a data stream, might remind people of some relational DB primitives
+  <p>
+
+<pre>
+# A sample (dummy) UNIX password file
+prioux:x:1037:1037:Pierre Rioux:/home/prioux:/bin/bash
+mero:x:1047:1047:Marc Rousseau:/home/mero:/bin/bash
+sdas:x:1055:1055:Samir Das:/home/sdas:/bin/tcsh
+nbeck:x:1055:1055:Natacha Beck:/home/sdas:/bin/sh
+tglat:x:1055:1055:Tristan Glatard:/home/sdas:/bin/tcsh
+</pre>
+
+<small>Find all users of the <strong>tcsh</strong> shell</small>:
+<pre>
+<em>unix%</em> cat /etc/passwd | <em>grep</em> /bin/tcsh | <em>cut</em> -d: -f5
+Samir Das
+Tristan Glatard
+</pre>
+
+So, what do grep and cut correspond to?
+
+<p class="fragment">
+grep : the <strong>where</strong> clauses of a SQL select statement
+<br>
+cut : the <strong>select `columns`</strong> part.
+</p>
+
+</section>
+
+<!-- ****************************** -->
+
 <section id="fdredir1">
   <h2>Bash redirection</h2>
   The bash shell (and other shells too) have
@@ -1293,14 +1327,10 @@ LOGPIPE=/tmp/pipe.$$
 mkfifo -m 700 $LOGPIPE
 trap "rm -f $LOGPIPE" EXIT
 tee -a &lt;$LOGPIPE $LOGFILE &amp;
-exec 1&gt;$LOGPIPE 2&gt;&1
+exec 1&gt;$LOGPIPE 2&gt;&amp;1
 </code></pre>
   <p>
   Lots of weird things in there, eh?
-  <p>
-  An the author of that is? (press space)
-  <p class="fragment">
-  Pierre Rioux
 </section>
 
 </section>
@@ -1321,6 +1351,8 @@ exec 1&gt;$LOGPIPE 2&gt;&1
     <li>UNIX-domain sockets</li>
     <li>quiz!</li>
   </ul>
+notes: blocking; EOF propagate
+notes: fork dups fds
 </section>
 
 <!-- ****************************** -->
