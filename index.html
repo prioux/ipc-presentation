@@ -35,8 +35,8 @@
         <li>signals</li>
         <li>environment variables</li>
         <li>files</li>
-        <li>fifos</li>
         <li>pipes</li>
+        <li>fifos</li>
         <li>sockets</li>
       </ul>
     </li>
@@ -216,7 +216,7 @@
   The only content is the type of signal, a simple number.
   <p>
   <ul>
-    <li>the types are encoded as a number from 1 to N.</li>
+    <li>the types are encoded as a number from 1 to N</li>
     <li>MacOS X (BSD-like) has about 30 signals</li>
     <li>Linux has about 60 signals</li>
     <li>they act like very quick <em>pings</em>
@@ -244,7 +244,6 @@
 25) SIGXFSZ     26) SIGVTALRM   27) SIGPROF     28) SIGWINCH
 29) SIGINFO     30) SIGUSR1     31) SIGUSR2
 </pre>
-
 </section>
 
 <!-- ****************************** -->
@@ -389,7 +388,6 @@ end
     </li>
   </ul>
   </div>
-
 </section>
 
 <!-- ****************************** -->
@@ -590,7 +588,7 @@ This way we know that no task is left at an inconsistent state.
   <ul>
     <li>a parent process #123 sets <em>ABC=def</em> in its environment</li>
     <li>when the process <em>fork()</em>, the child process #987 also has <em>ABC=def</em></li>
-    <li><strong>all</strong> environment variables are <i>copied</i> exactly, in fact.</li>
+    <li><strong>all</strong> environment variables are <i>copied</i> exactly, in fact</li>
   </ul>
   <p>
   The end result is that a process has a capability to<br>
@@ -813,7 +811,6 @@ ENVIRONMENT VARIABLES
 <em>unix%</em> mt rewind
 <em>unix%</em> mt fsf 3
 </pre>
-
 </section>
 
 <!-- ****************************** -->
@@ -1217,7 +1214,6 @@ grep : the <strong>where</strong> clauses of a SQL select statement
 <br>
 cut : the <strong>select `columns`</strong> part.
 </p>
-
 </section>
 
 <!-- ****************************** -->
@@ -1244,7 +1240,6 @@ cut : the <strong>select `columns`</strong> part.
 </pre>
     <img src="images/fd_redirout.png">
   </div>
-
 </section>
 
 <!-- ****************************** -->
@@ -1264,7 +1259,6 @@ cut : the <strong>select `columns`</strong> part.
 </pre>
     <img src="images/fd_redirall.png">
   </div>
-
 </section>
 
 <!-- ****************************** -->
@@ -1296,7 +1290,7 @@ cut : the <strong>select `columns`</strong> part.
 <section id="fderr">
   <h2>Standard error handling</h2>
   <ul>
-    <li>often use for diagnostics or messages</li>
+    <li>often used for diagnostics or messages</li>
     <li>can be redirected or merged with standard output</li>
   </ul>
 <pre>
@@ -1315,7 +1309,7 @@ def.txt: no such file or directory
 
 <!-- ****************************** -->
 
-<section id="teaser">
+<section id="teaser1">
   <h2>A teaser for what's next</h2>
   Here's an excerpt from the <i>LORIS</i> <em>install.sh</em> script:
   <p>
@@ -1339,29 +1333,494 @@ exec 1&gt;$LOGPIPE 2&gt;&amp;1
 <!-- ############################## -->
 <!-- ############################## -->
 
-<section id="pipe">
+<section id="pipes">
 
-<section id="next">
-  <h2>NEXT WEEK! (Todo)</h2>
+<section id="pipeintro">
+  <h2>Anonymous pipes</h2>
+  <img src="images/pipeintro.png">
+  <br>
   <ul>
-    <li>named pipes</li>
-    <li>real pipes</li>
-    <li>popen()</li>
-    <li>sockets</li>
-    <li>UNIX-domain sockets</li>
-    <li>quiz!</li>
+    <li>they are features provided by the operating system</li>
+    <li>a pipe is <strong>unidirectional</strong></li>
+    <li>it connects a <em>writer</em> file descriptor of a process to a <em>reader</em> file descriptor of another process</li>
+    <li>in between is a memory <strong>buffer</strong>, managed by the operating system</li>
+    <li>the two processes have no real control over that buffer</li>
   </ul>
-notes: blocking; EOF propagate
-notes: fork dups fds
 </section>
 
 <!-- ****************************** -->
 
-<section id="xxx">
+<section id="pipebufbehavior">
+  <h2>Buffer behavior</h2>
+  <img src="images/barrel.png">
+  <br>
+  The buffer's behavior can be compared to a barrel.
+  <p>
+  <ul>
+    <li>process A, the <em>writer</em>, is pouring data in</li>
+    <li>process B, the <em>reader</em>, is slurping data out</li>
+  </ul>
+  <p>
+  Unlike a barrel of water, the data's I/O order is kept.
+</section>
+
+<!-- ****************************** -->
+
+<section id="pipebufbehavior2">
+  <h2>A filled buffer</h2>
+  <img src="images/barrel_f.png">
+  <br>
+  When the <em>writer</em> produces data <strong>faster</strong><br>
+  than the <em>reader</em> can process them:
+  <p>
+  <ul>
+    <li>the buffer fills completely</li>
+    <li>the operating system will <strong>suspend</strong> process A</li>
+    <li>however, process B will run at full speed</li>
+  </ul>
+</section>
+
+<!-- ****************************** -->
+
+<section id="pipebufbehavior3">
+  <h2>An empty buffer</h2>
+  <img src="images/barrel_e.png">
+  <br>
+  When the <em>writer</em> produces data <strong>slower</strong><br>
+  than the <em>reader</em> can process them:
+  <p>
+  <ul>
+    <li>the buffer empties completely</li>
+    <li>the operating system will <strong>suspend</strong> process B</li>
+    <li>however, process A will run at full speed</li>
+  </ul>
+</section>
+
+<!-- ****************************** -->
+
+<section id="pipebufspecs">
+  <h2>Buffer specs</h2>
+  <ul>
+    <li>in good old times, the buffer's size was <em>4096 bytes</em> (4 Kib)</li>
+    <li>in most modern UNIX systems, it is now <em>65036 bytes</em> (64 Kib)</li>
+    <li>blocking the reader or writer makes the system <strong>as efficient as possible</strong></li>
+  </ul>
+</section>
+
+<!-- ****************************** -->
+
+<section id="pipesetup">
+  <h2>Setting up a pipe</h2>
+  <img src="images/pipesetup.png">
+  <br>
+  If you look up the system calls of a UNIX system you'll<br>
+  be surprised to discover that:
+  <p>
+  <ul>
+    <li>given two existing processes A and B...</li>
+    <li>... there is <strong>no API</strong> to create a pipe between them!</li>
+  </ul>
+</section>
+
+<!-- ****************************** -->
+
+<section id="pipesyscall">
+  <h2>The pipe() system call</h2>
+  <img src="images/pipesyscall.png">
+  <p>
+  There is however a system call that seems promising:
+  <p>
+  <ul>
+    <li>it is called <em>pipe()</em></li>
+    <li>it creates a buffer</li>
+    <li>it connects to it two file descriptors of the process</li>
+    <li>one for <em>reading</em>, one for <em>writing</em></li>
+    <li>er... how is that useful ?!?</li>
+  </ul>
+</section>
+
+<!-- ****************************** -->
+
+<section id="pipefork">
+  <h2>Pipe and fork...</h2>
+  <img src="images/pipefork.png">
+  <p>
+  The solution is for the process to <em>fork()</em> after <em>pipe()</em>
+  <p>
+  <ul>
+    <li>we get two processes</li>
+    <li>both have access to both file descriptors</li>
+    <li>the memory buffer is unique and shared</li>
+  </ul>
+</section>
+
+<!-- ****************************** -->
+
+<section id="pipeclose">
+  <h2>Pipe, fork and close</h2>
+  <img src="images/pipeclose.png">
+  <p>
+  Then, each process decides to <em>close()</em> one of their file descriptors.
+  <p>
+  To send data from parent to child:
+  <p>
+  <ul>
+    <li>the parent closes the <em>read</em> descriptor</li>
+    <li>the child closes the <em>write</em> descriptor</li>
+  </ul>
+</section>
+
+<!-- ****************************** -->
+
+<section id="pipeclose2">
+  <h2>Pipe, fork and close 2</h2>
+  <img src="images/pipeclose2.png">
+  <p>
+  To send data from child to parent:
+  <p>
+  <ul>
+    <li>the parent closes the <em>write</em> descriptor</li>
+    <li>the child closes the <em>read</em> descriptor</li>
+  </ul>
+</section>
+
+<!-- ****************************** -->
+
+<section id="pipeperl">
+  <h2>An example in plain Perl</h2>
+<pre class="transp"><code class="perl">#!/bin/perl
+
+# Standard perl functions; no Perl libs, no strict, no nothin'
+pipe(READFD,WRITEFD);
+
+if (fork) { # this block is the parent process
+  close(READFD);
+  print WRITEFD "Good morning my son";
+  print "I am parent process $$ and I exit now.\n";
+  exit 0;
+} else { # this block is the child process
+  close(WRITEFD);
+  $a=&lt;READFD&gt;;
+  print "I am child process $$ and I read '$a' from my parent. Exiting now.\n";
+  exit 0;
+}
+</code></pre>
+<pre>
+<em>unix%</em> perl pipe.pl
+I am parent process 24891 and I exit now.
+I am child process 24892 and I read 'Good morning my son' from my parent. Exiting now.
+</pre>
+</section>
+
+<!-- ****************************** -->
+
+<section id="popen">
+  <h2>popen() to the rescue</h2>
+  <ul>
+    <li>these <em>pipe()</em>, <em>fork()</em>, and <em>close()</em> can be cumbersome</li>
+    <li>yet piping to or from another process is a common need</li>
+    <li>many languages have libraries with wrappers to do all that:</li>
+  </ul>
+  <p>
+  <div class="cell">
+    <ul>
+      <li>C :<br><pre>fh=popen("ls -l","r");</pre></li>
+      <li>Perl :<br><pre>open(FH,"ls -l|");
+# or
+my $fh = IO::File-&gt;new("ls -l|");     </pre></li>
+</pre>
+    </ul>
+  </div>
+  <div class="cell">
+    <ul>
+      <!-- I hate having to insert dummy trailing spaces in my code blocks! -->
+      <li>PHP:<br><pre>$fh = popen("ls -l","r");</pre></li>
+      <li>Ruby:<br><pre>fh = IO.popen("ls -l","r")             
+
+
+</pre></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ****************************** -->
+
+<section id="pipetargz">
+  <h2>Toolbox approach in action</h2>
+  Some commands will use piping internally without telling you.
+  <p>
+  An example is <em>tar -c<strong>z</strong>f out.tar.gz somedir</em>
+  <p>
+  The tar command does <strong>not</strong> implement compression.<br>
+  It delegates this to a <em>gzip</em> child process that it pipes to.
+  <p>
+  <img src="images/pipetargz.png">
+</section>
+
+<!-- ****************************** -->
+
+<section id="pipetargz2">
+<pre>
+<em>unix%</em> tar -czf /tmp/dummy.tar.gz MainStore &amp;
+[1] 28976
+</pre>
+<pre>
+<em>unix%</em> pstree -p -a -c 28976
+tar,28976 -czf /tmp/dummy.tar.gz MainStore
+  |
+  +--gzip,28977
+</pre>
+<pre>
+<em>unix%</em> lsof -w -b -p 28976
+COMMAND   PID  FD   TYPE  NAME
+tar     28976   0u   CHR  /dev/pts/0
+tar     28976   1u   CHR  /dev/pts/0
+tar     28976   2u   CHR  /dev/pts/0
+tar     28976   3r   REG  /data/MainStore/32/69/00/01221_2_t1.mnc.gz
+tar     28976   4w  FIFO  pipe
+</pre>
+<pre>
+<em>unix%</em> lsof -w -b -p 28977
+COMMAND   PID  FD   TYPE  NAME
+gzip    28977   0r  FIFO  pipe
+gzip    28977   1w   REG  /tmp/dummy.tar.gz
+gzip    28977   2u   CHR  /dev/pts/0
+</pre>
+</section>
+
+</section>
+
+<!-- ############################## -->
+<!-- ############################## -->
+<!-- ############################## -->
+
+<section>
+
+<section id="fifoprob">
+  <h2>Named pipes (a.k.a. FIFOs)</h2>
+  What if we wanted to establish a pipe<br>
+  between two <strong>unrelated</strong> processes?
+  <p>
+  <ul>
+    <li>the processes need to 'find' each other</li>
+    <li>but PIDs aren't good enough</li>
+    <li>process names and commands are not reliable</li>
+    <li>we may want many such pipes</li>
+    <li>so it would be nice if we could give them <strong>names</strong></li>
+  </ul>
+  <p>
+  Instead of establishing a registry, or adding new system calls,<br>
+  the UNIX designers chose the <strong>filesystem</strong> as a meeting place.
+</section>
+
+<!-- ****************************** -->
+
+<section id="fifointro">
+  <h2>Introducing FIFO files</h2>
+  <small>(a.k.a. named pipes oh darn it)</small>
+<pre>
+<em>unix%</em> mkfifo abcde # on some system it's mknod
+<em>unix%</em> ls -l abcde
+prw-r--r--  1 prioux  staff  0 Jul 27 21:46 abcde
+</pre>
+  <ul>
+    <li>this creates an entry in the filesystem (yes, an inode <strong>is</strong> used)</li>
+    <li>this entry is permanent until deleted</li>
+    <li>it is purely a place holder for communication</li>
+    <li>no buffers or file descriptors are associated with it</li>
+    <li>no space on the filesystem is used</li>
+    <li>the size stays at <strong>0</strong></li>
+    <li>normal file access restrictions apply</li>
+  </ul>
+</section>
+
+<!-- ****************************** -->
+
+<section id="fifobehave">
+  <h2>How they are used</h2>
+  Given a FIFO file, a process can, using standard file operations:
+  <p>
+  <ul>
+    <li>write data to it</li>
+    <li>read data from it</li>
+  </ul>
+  <p>
+  Except, the data is <strong>not</strong> going to disk at all!
+</section>
+
+<!-- ****************************** -->
+
+<section id="fifobehave2">
+  <h2>How two processes communicate with FIFOs</h2>
+  Processes can independantly start reading or<br>
+  writing <strong>'to'</strong> the FIFO file.
+  <p>
+  <img src="images/fifothink.png">
+</section>
+
+<!-- ****************************** -->
+
+<section id="fifobehave3">
+  <h2>But the OS takes over!</h2>
+  However, the data requests are intercepted <small>(kind of)</small>
+  and they instead go to a memory buffer just like for anonymous pipes.
+  <p>
+  <img src="images/fiforeal.png">
+</section>
+
+<!-- ****************************** -->
+
+<section id="fifoprops">
+  <h2>Other properties of FIFOs</h2>
+  <ul>
+    <li>a process can start reading or writing even if the other process does not yet exist</li>
+    <li>in that case, the first process will block</li>
+    <li>FIFOs can be reused</li>
+    <li>you can delete the FIFO file while in use (!)</li>
+    <li>FIFO files can only be created on some filesystem types</li>
+  </ul>
+</section>
+
+<!-- ****************************** -->
+
+<section id="fifoex">
+  <h2>An example in BASH</h2>
+Preparation:
+  <p>
+  <div>
+<pre>
+<em>unix%</em> mkfifo robot.pdf    # this file is neither a robot nor a PDF!
+<em>unix%</em> ls -l robot.pdf
+prw-r--r--  1 prioux  staff  0 Jul 28 10:52 robot.pdf|           
+</pre>
+  </div>
+
+  <p>
+  In two separate shells, side by side:
+  <p>
+
+  <div class="cell">
+<pre>
+<em>unix%</em> echo "Ceci n'est pas une pipe" &gt; robot.pdf           
+</pre>
+  </div>
+  <div class="cell">
+<pre>
+<em>unix%</em> cat robot.pdf           
+Ceci n'est pas une pipe
+</pre>
+  </div>
+</section>
+
+<!-- ****************************** -->
+
+<section id="pipecomp">
+  <h2>A mistake I made</h2>
+  FIFOs only allow processes running on the <strong>same</strong><br>
+  computer to exchange data.
+  <p>
+  <img src="images/pipecomp.png">
+</section>
+
+<!-- ****************************** -->
+
+<section id="teaser2">
+  <h2>Next part</h2>
+   That's it for today.
+   <p>
+   The last part of this presentation will deal with:
+   <p>
+   <ul>
+     <li>Network sockets</li>
+     <li>UNIX-domain sockets</li>
+     <li>A summary of IPC techniques</li>
+     <li>A fun quiz!</li>
+   <ul>
+</section>
+
+</section>
+
+<!-- ############################## -->
+<!-- ############################## -->
+<!-- ############################## -->
+
+<section>
+
+<section id="gxx">
   <h2>title here</h2>
   <ul>
-    <li>xxx</li>
-    <li>xxx</li>
+    <li>blah</li>
+    <li>blah</li>
+  </ul>
+</section>
+
+<!-- ****************************** -->
+
+<section id="hxx">
+  <h2>title here</h2>
+  <ul>
+    <li>blah</li>
+    <li>blah</li>
+  </ul>
+</section>
+
+<!-- ****************************** -->
+
+<section id="ixx">
+  <h2>title here</h2>
+  <ul>
+    <li>blah</li>
+    <li>blah</li>
+  </ul>
+</section>
+
+<!-- ****************************** -->
+
+<section id="jxx">
+  <h2>title here</h2>
+  <ul>
+    <li>blah</li>
+    <li>blah</li>
+  </ul>
+</section>
+
+<!-- ****************************** -->
+
+<section id="kxx">
+  <h2>title here</h2>
+  <ul>
+    <li>blah</li>
+    <li>blah</li>
+  </ul>
+</section>
+
+<!-- ****************************** -->
+
+<section id="lxx">
+  <h2>title here</h2>
+  <ul>
+    <li>blah</li>
+    <li>blah</li>
+  </ul>
+</section>
+
+<!-- ****************************** -->
+
+<section id="mxx">
+  <h2>title here</h2>
+  <ul>
+    <li>blah</li>
+    <li>blah</li>
+  </ul>
+</section>
+
+<!-- ****************************** -->
+
+<section id="nxx">
+  <h2>title here</h2>
+  <ul>
+    <li>blah</li>
+    <li>blah</li>
   </ul>
 </section>
 
