@@ -1341,6 +1341,7 @@ exec 1&gt;$LOGPIPE 2&gt;&amp;1
   <br>
   <ul>
     <li>they are features provided by the operating system</li>
+    <li>they're used by the shell when piping "<strong>command | command</strong>"</li>
     <li>a pipe is <strong>unidirectional</strong></li>
     <li>it connects a <em>writer</em> file descriptor of a process to a <em>reader</em> file descriptor of another process</li>
     <li>in between is a memory <strong>buffer</strong>, managed by the operating system</li>
@@ -1436,6 +1437,7 @@ exec 1&gt;$LOGPIPE 2&gt;&amp;1
     <li>it connects to it two file descriptors of the process</li>
     <li>one for <em>reading</em>, one for <em>writing</em></li>
     <li>er... how is that useful ?!?</li>
+    <li>... what can do?</li>
   </ul>
 </section>
 
@@ -1638,7 +1640,7 @@ prw-r--r--  1 prioux  staff  0 Jul 27 21:46 abcde
 
 <section id="fifobehave">
   <h2>How they are used</h2>
-  Given a FIFO file, a process can, using standard file operations:
+  Given a FIFO file, a process can, using <strong>standard file operations</strong>:
   <p>
   <ul>
     <li>write data to it</li>
@@ -1652,8 +1654,8 @@ prw-r--r--  1 prioux  staff  0 Jul 27 21:46 abcde
 
 <section id="fifobehave2">
   <h2>How two processes communicate with FIFOs</h2>
-  Processes can independantly start reading or<br>
-  writing <strong>'to'</strong> the FIFO file.
+  Processes can independantly start reading from,<br>
+  or writing to, the FIFO file.
   <p>
   <img src="images/fifothink.png">
 </section>
@@ -1706,7 +1708,7 @@ prw-r--r--  1 prioux  staff  0 Jul 28 10:52 robot.pdf|
   </div>
   <div class="cell">
 <pre>
-<em>unix%</em> cat robot.pdf           
+<em>unix%</em> cat &lt; robot.pdf           
 Ceci n'est pas une pipe
 </pre>
   </div>
@@ -1731,10 +1733,10 @@ Ceci n'est pas une pipe
    The last part of this presentation will deal with:
    <p>
    <ul>
-     <li>Network sockets</li>
-     <li>UNIX-domain sockets</li>
-     <li>A summary of IPC techniques</li>
-     <li>A fun quiz!</li>
+     <li>Network sockets<br><small>(summarized, I already did a full presentation about that a few years ago)</small></li>
+     <li>UNIX-domain sockets<br><small>(mysterious? nah!)</small></li>
+     <li>A summary of IPC techniques<br><small>(like in a table or som'thin)</small></li>
+     <li>A fun quiz!<br><small>(real fun! but why all these parenthesis?)</small></li>
    <ul>
 </section>
 
