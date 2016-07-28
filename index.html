@@ -1419,7 +1419,7 @@ exec 1&gt;$LOGPIPE 2&gt;&amp;1
   <p>
   <ul>
     <li>given two existing processes A and B...</li>
-    <li>... there is <strong>no API</strong> to create a pipe between them!</li>
+    <li>... <i>there is no API</i> to create a pipe between them!</li>
   </ul>
 </section>
 
@@ -1553,7 +1553,7 @@ my $fh = IO::File-&gt;new("ls -l|");     </pre></li>
   <p>
   An example is <em>tar -c<strong>z</strong>f out.tar.gz somedir</em>
   <p>
-  The tar command does <strong>not</strong> implement compression.<br>
+  The tar command does <i>not</i> implement compression.<br>
   It delegates this to a <em>gzip</em> child process that it pipes to.
   <p>
   <img src="images/pipetargz.png">
@@ -1626,7 +1626,7 @@ gzip    28977   2u   CHR  /dev/pts/0
 prw-r--r--  1 prioux  staff  0 Jul 27 21:46 abcde
 </pre>
   <ul>
-    <li>this creates an entry in the filesystem (yes, an inode <strong>is</strong> used)</li>
+    <li>this creates an entry in the filesystem (yes, an inode <i>is</i> used)</li>
     <li>this entry is permanent until deleted</li>
     <li>it is purely a place holder for communication</li>
     <li>no buffers or file descriptors are associated with it</li>
@@ -1647,7 +1647,7 @@ prw-r--r--  1 prioux  staff  0 Jul 27 21:46 abcde
     <li>read data from it</li>
   </ul>
   <p>
-  Except, the data is <strong>not</strong> going to disk at all!
+  Except, the data is <i>not</i> going to disk at all!
 </section>
 
 <!-- ****************************** -->
@@ -1718,7 +1718,7 @@ Ceci n'est pas une pipe
 
 <section id="pipecomp">
   <h2>A mistake I made</h2>
-  FIFOs only allow processes running on the <strong>same</strong><br>
+  FIFOs only allow processes running on the <i>same</i><br>
   computer to exchange data.
   <p>
   <img src="images/pipecomp.png">
