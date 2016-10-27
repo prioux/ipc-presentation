@@ -107,8 +107,8 @@
   which will be important:
   <p>
   <ul>
-    <li><span style="color: blue">environment variables</span></li>
-    <li><span style="color: red">signal handlers</span></li>
+    <li><span style="color: #00f">environment variables</span></li>
+    <li><span style="color: #f00">signal handlers</span></li>
     <li><span style="color: #0f0">file descriptors</span></li>
   </ul>
   <p>
@@ -208,7 +208,7 @@
 <section id="signals">
 
 <section id="sig1">
-  <h2>Signals 1</h2>
+  <h2>Signals</h2>
   Processes can send and receive <em>signals</em>.
   <p>
   They are a sort of ultra-simple message.
@@ -1307,26 +1307,6 @@ def.txt: no such file or directory
   <img src="images/fderr.png">
 </section>
 
-<!-- ****************************** -->
-
-<section id="teaser1">
-  <h2>A teaser for what's next</h2>
-  Here's an excerpt from the <i>LORIS</i> <em>install.sh</em> script:
-  <p>
-<pre class="transp"><code class="bash" data-trim>
-START=`date "+%Y-%m-%dT%H:%M:%S"`
-LOGDIR="logs"
-LOGFILE="logs/install-$START.log"
-LOGPIPE=/tmp/pipe.$$
-mkfifo -m 700 $LOGPIPE
-trap "rm -f $LOGPIPE" EXIT
-tee -a &lt;$LOGPIPE $LOGFILE &amp;
-exec 1&gt;$LOGPIPE 2&gt;&amp;1
-</code></pre>
-  <p>
-  Lots of weird things in there, eh?
-</section>
-
 </section>
 
 <!-- ############################## -->
@@ -1437,7 +1417,7 @@ exec 1&gt;$LOGPIPE 2&gt;&amp;1
     <li>it connects to it two file descriptors of the process</li>
     <li>one for <em>reading</em>, one for <em>writing</em></li>
     <li>er... how is that useful ?!?</li>
-    <li>... what can do?</li>
+    <li>... what can we do?</li>
   </ul>
 </section>
 
@@ -1724,20 +1704,150 @@ Ceci n'est pas une pipe
   <img src="images/pipecomp.png">
 </section>
 
+</section>
+
+<!-- ############################## -->
+<!-- ############################## -->
+<!-- ############################## -->
+
+<section id="sockets">
+
+<section id="sockets1">
+  <h2>Sockets</h2>
+  <ul>
+    <li>they can connect two processes on the <em>same</em> computer</li>
+    <li>they can connect two processes on <em>different</em> computers</li>
+  </ul>
+  <img src="images/sockets1.png">
+  <br>
+  Note: this is the <strong>only</strong> IPC mechanism that can connect processes on different computers!
+</section>
+
 <!-- ****************************** -->
 
-<section id="teaser2">
-  <h2>Next part</h2>
-   That's it for today.
-   <p>
-   The last part of this presentation will deal with:
-   <p>
-   <ul>
-     <li>Network sockets<br><small>(summarized, I already did a full presentation about that a few years ago)</small></li>
-     <li>UNIX-domain sockets<br><small>(mysterious? nah!)</small></li>
-     <li>A summary of IPC techniques<br><small>(like in a table or som'thin)</small></li>
-     <li>A fun quiz!<br><small>(real fun! but why all these parenthesis?)</small></li>
-   <ul>
+<section id="sockprops">
+  <h2>Socket properties</h2>
+  <ul>
+    <li>just like pipes, the processes use file descriptors</li>
+    <li>they are <em>bidirectional</em></li>
+    <li>... each process reads and writes to one file descriptor</li>
+    <li>the streams of bytes are <em>buffered</em> by the operating systems</li>
+    <li>... which can lead to <em>blocking</em></li>
+    <li>care must be taken not to enter a <strong>deadlock</strong></li>
+    <li>fortunately the OS provides calls to check if data is available or not without blocking</li>
+  </ul>
+</section>
+
+<!-- ****************************** -->
+
+<section id="socktypes1">
+  <h2>Network sockets vs UNIX-domain sockets</h2>
+  These two types of IPC end up providing the same feature,<br>
+  that is a bidirectional data flow.
+  <p>
+  They differ in how the data is <em>transported</em><br>
+  and how the processes find themselves.
+</section>
+
+<!-- ****************************** -->
+
+<section id="socktypes2">
+  <h2>For network sockets</h2>
+  <ul>
+    <li>the stream is sent in packets over the network (duh)</li>
+    <li>the processes find each other by interfaces, IP addresses, port numbers, etc</li>
+    <li>the processes <strong>can be</strong> on two <em>different</em> computers</li>
+  </ul>
+  <img src="images/sock_net.png">
+</section>
+
+<!-- ****************************** -->
+
+<section id="socktypes3">
+  <h2>For UNIX-domain sockets</h2>
+  <ul>
+    <li>the stream is sent in memory buffers within the OS</li>
+    <li>the processes find each other with a <em>socketfile</em></li>
+    <li>the <em>socketfile</em> is a placeholder just like for named pipes</li>
+    <li>the processes <strong>have to be</strong> on the <em>same</em> computer.</li>
+  </ul>
+  <img src="images/sock_unix.png">
+</section>
+
+<!-- ****************************** -->
+
+<section id="socketpres1">
+  <h2>Summarizing another presentation</h2>
+  I already presented computer networking in<br>
+  details back in 2013, including network sockets.
+  <p>
+  That presentation is available in the <strong>Documents</strong><br>
+  tab of the ACELab <strong>Redmine</strong> tracker, in project <em>ACELab IT</em>.
+  <p>
+  <img src="images/redm_1.png" style="width: 50%">
+  <br>
+  <img src="images/redm_2.png" style="width: 50%">
+</section>
+
+<!-- ****************************** -->
+
+<section id="socketpres2">
+  <h2>In that presentation...</h2>
+  <div class="cell">
+    <ul>
+      <li>interfaces</li>
+      <li>IP addresses</li>
+      <li>port numbers</li>
+      <li>packets</li>
+      <li>etc...</li>
+    <ul>
+  </div>
+  <div class="cell">
+    <img src="images/sock_pres1.png" style="width: 50%">
+  </div>
+</section>
+
+<!-- ****************************** -->
+
+<section id="socketfind">
+  <h2>How processes find each other</h2>
+  Here's a quick summary of how a connection is<br>
+  set up. This applies to both types of sockets.
+  <p>
+  <ul>
+    <li>one process establish itself as a <em>listener</em><br>
+       <small>Network: <em>(IP, port)</em> vs UNIX: <em>(socketfile)</em></small>
+    </li>
+    <li>another process connects to it by specifying the same parameters</li>
+    <li>the listener accepts the connection</li>
+    <li>the operating system(s) transport the stream of bytes</li>
+    <li>the two processes <em>read</em> and <em>write</em> to their file descriptors</li>
+  </ul>
+</section>
+
+<!-- ****************************** -->
+
+<section id="sockmulti">
+  <h2>Many-to-one connections</h2>
+  Sockets are the only IPC mechanism that allow many processes
+  to communicate with the <em>listener</em> process.
+  <p>
+  <img src="images/sockmulti.png">
+</section>
+
+<!-- ****************************** -->
+
+<section id="sockaccess">
+  <h2>Access control</h2>
+  There is <i>no</i> particular access control for this type of IPC<br>
+  based on the <strong>owner</strong> or <strong>groups</strong> of the processes involved.
+  <p>
+  <ul>
+    <li>UNIX-domain sockets: the <em>socketfile</em>'s permissions apply</li>
+    <li>network sockets: the external network routing, firewall etc</li>
+    <li>the listener process can reject connections based on source...</li>
+    <li>... or (most often) on content exchanged (protocol violations)</li>
+  </ul>
 </section>
 
 </section>
@@ -1746,84 +1856,198 @@ Ceci n'est pas une pipe
 <!-- ############################## -->
 <!-- ############################## -->
 
-<section>
+<section id="overview">
 
-<section id="gxx">
-  <h2>title here</h2>
+<section id="overviewtable">
+  <h2>IPC mechanisms overview</h2>
+  <table class="smallcontent">
+
+    <tr>
+      <th><br>IPC</th>
+      <th><br>Bidirectional?</th>
+      <th>Multi computer?</th>
+      <th>Process relationships</th>
+    </tr>
+
+    <tr>
+      <td>Signals</td>
+      <td><i>no</i></td>
+      <td><i>no</i></td>
+      <td>any (same owner)</td>
+    </tr>
+
+    <tr>
+      <td>Environment variables</td>
+      <td><i>no</i></td>
+      <td><i>no</i></td>
+      <td>forked children only</td>
+    </tr>
+
+    <tr>
+      <td>Pipes</td>
+      <td><i>no</i></td>
+      <td><i>no</i></td>
+      <td>forked children only</td>
+    </tr>
+
+    <tr>
+      <td>Named Pipes</td>
+      <td><i>no</i></td>
+      <td><i>no</i></td>
+      <td>any, but <em>fifo file</em> permissions apply</td>
+    </tr>
+
+    <tr>
+      <td>Network sockets</td>
+      <td><em>yes</em></td>
+      <td><em>yes</em></td>
+      <td>any, but firewalls etc apply</td>
+    </tr>
+
+    <tr>
+      <td>UNIX-domain sockets</td>
+      <td><em>yes</em></td>
+      <td><i>no</i></td>
+      <td>any, but <em>socketfile</em> permissions apply</td>
+    </tr>
+
+  </table>
+</section>
+
+</section>
+
+<!-- ############################## -->
+<!-- ############################## -->
+<!-- ############################## -->
+
+<section id="quiz">
+
+<section id="quiz1">
+  <h2>A quiz</h2>
+  This is based on a true story, here at the lab.
+  <p>
+  <em>Setting</em>: We had a UNIX machine with small disk space. Largest<br>
+  partition: 80G dedicated to the LORIS development MySQL DBs.
+  <p>
   <ul>
-    <li>blah</li>
-    <li>blah</li>
-  </ul>
+    <li>the disk is nearly full.</li>
+    <li>we identified a BIGDB inside the MySQL server using about 5G</li>
+    <li>we think it's filled with obsolete 'temp' data</li>
+    <li>we want to delete the DB <strong>after making a backup of the data</strong></li>
+  <ul>
+  <br>
+  We <i>cannot</i> do this, we don't have the disk space for <em>file.sql</em>:
+  <pre><em>unix%</em> mysqldump [options] BIGDB &gt; file.sql</pre>
 </section>
 
 <!-- ****************************** -->
 
-<section id="hxx">
-  <h2>title here</h2>
-  <ul>
-    <li>blah</li>
-    <li>blah</li>
-  </ul>
+<section id="quiz2">
+  <h2>Quiz: the command</h2>
+  Instead I ran this:
+  <br>
+  <pre><em>unix%</em> mysqldump [options] BIGDB | gzip -c | ssh me@remote.host 'cat &gt; dump.sql.gz'</pre>
+  <br>
+  Using what you all collectively know about UNIX:
+  <p>
+  <ol>
+    <li>how many processes are involved?</li>
+    <li>which processes are they?</li>
+    <li>which IPC mechanisms are used?</li>
+  </ol>
 </section>
 
 <!-- ****************************** -->
 
-<section id="ixx">
-  <h2>title here</h2>
-  <ul>
-    <li>blah</li>
-    <li>blah</li>
-  </ul>
+<section id="quiz3">
+  <h2>Quiz: the diagrams</h2>
+  <pre><em>unix%</em> mysqldump [options] BIGDB | gzip -c | ssh me@remote.host 'cat &gt; dump.sql.gz'</pre>
+
+  Let's identify the processes.
+
+  <p class="fragment">
+  The easy ones: the processes we see on the command line:
+
+  <p class="fragment">
+  <img src="images/quiz_proc1.png">
+
+  <p class="fragment">
+  They run on two different computers, right?
+
+  <p class="fragment">
+  <img src="images/quiz_proc2.png">
 </section>
 
 <!-- ****************************** -->
 
-<section id="jxx">
-  <h2>title here</h2>
-  <ul>
-    <li>blah</li>
-    <li>blah</li>
-  </ul>
+<section id="quiz4">
+  <pre><em>unix%</em> mysqldump [options] BIGDB | gzip -c | ssh me@remote.host 'cat &gt; dump.sql.gz'</pre>
+  <p>
+  They were are all started by some other processes, right?<br>
+  And what about the DB server process itself?
+  <p class="fragment">
+  <img src="images/quiz_proc3.png">
+  <small>Note: two <em>sshd</em> processes are in fact involved...</small>
 </section>
 
 <!-- ****************************** -->
 
-<section id="kxx">
-  <h2>title here</h2>
-  <ul>
-    <li>blah</li>
-    <li>blah</li>
-  </ul>
+<section id="quiz5">
+  <pre><em>unix%</em> mysqldump [options] BIGDB | gzip -c | ssh me@remote.host 'cat &gt; dump.sql.gz'</pre>
+  <p>
+  Now let's draw the connections to files.<br>
+  These are standard file operations, not IPC.
+  <p class="fragment">
+  <img src="images/quiz_proc_fs.png">
 </section>
 
 <!-- ****************************** -->
 
-<section id="lxx">
-  <h2>title here</h2>
-  <ul>
-    <li>blah</li>
-    <li>blah</li>
-  </ul>
+<section id="quiz6">
+  <pre><em>unix%</em> mysqldump [options] BIGDB | gzip -c | ssh me@remote.host 'cat &gt; dump.sql.gz'</pre>
+  <img src="images/quiz_proc_fs.png">
+  OK now, what are <em>all the IPC mechanisms</em><br>
+  operating between these processes?
+  <p>
+  Recap: <span style="color: #8f0">Signals</span>,
+         <span style="color: #0f8">Environment Variables</span>,
+         <span style="color: #f0f">Anonymous Pipes</span>,
+         <span style="color: #0ff">Named Pipes</span>,
+         <span style="color: #f80">Network Sockets</span>,
+         <span style="color: #f00">UNIX-Domain Sockets</span>
 </section>
 
 <!-- ****************************** -->
 
-<section id="mxx">
-  <h2>title here</h2>
-  <ul>
-    <li>blah</li>
-    <li>blah</li>
-  </ul>
+<section id="quizannot">
+  <pre><em>unix%</em> mysqldump [options] BIGDB | gzip -c | ssh me@remote.host 'cat &gt; dump.sql.gz'</pre>
+  <img src="images/quiz_annot.png">
 </section>
 
-<!-- ****************************** -->
+</section>
 
-<section id="nxx">
-  <h2>title here</h2>
-  <ul>
-    <li>blah</li>
-    <li>blah</li>
-  </ul>
+<!-- ############################## -->
+<!-- ############################## -->
+<!-- ############################## -->
+
+<section id="end">
+
+<section id="final">
+  <h2>Thank you</h2>
+  I'm hoping this overview of IPC has help you all<br>
+  in understanding better how the <strong>applications we write</strong>,<br>
+  and the <strong>commands we run</strong>, interact <em>with each other</em><br>
+  and <em>with the system</em>.
+  <p class="fragment">
+  Presented in four parts: June 2016 - October 2016
+  <p class="fragment">
+  I'm willing to present again any previous parts of this<br>
+  presentation, for those who have missed them.
+  <br><br>
+  <small>
+  (This offer includes the <strong>GIT</strong>,
+  the <strong>File system</strong>, and the <strong>Networking</strong> presentations too)
+  </small>
 </section>
 
 </section>
@@ -1835,6 +2059,8 @@ Ceci n'est pas une pipe
     </div>
   </div>
 
+  <!-- Main reveal.js setup -->
+
   <script src="lib/js/head.min.js"></script>
   <script src="js/reveal.js"></script>
   <script src="plugin/highlight/highlight.js"></script>
@@ -1844,7 +2070,13 @@ Ceci n'est pas une pipe
     );
     hljs.initHighlightingOnLoad();
   </script>
+
+  <!-- Styles -->
+
   <style>
+
+    /* Headers */
+
     .reveal h1,
     .reveal h2,
     .reveal h3,
@@ -1853,6 +2085,25 @@ Ceci n'est pas une pipe
       color: #ffffff;
       text-shadow: 0.0em 0.0em 0.2em #0cc;
     }
+
+    /* Text styles: em, strong, b, i */
+
+    .reveal em {
+      color: yellow;
+      font-style: normal; /* yes please! */
+    }
+    .reveal strong {
+      color: #0ff;  /* funny, I'm using RGB with only three digits today */
+    }
+    .reveal b {
+      color: #00f;
+    }
+    .reveal i {
+      color: #f00;
+    }
+
+    /* Misc */
+
     .reveal section img {
       background: transparent;
       border: none;
@@ -1861,13 +2112,6 @@ Ceci n'est pas une pipe
     .reveal pre {
       background: #033;
       padding: 0.2em 0.5em 0.3em 0.5em;
-    }
-    .reveal em {
-      color: yellow;
-      font-style: normal; /* yes please! */
-    }
-    .reveal strong {
-      color: #0ff;  /* funny, I'm using RGB with only three digits today */
     }
     .reveal .cell {
       display: table-cell;
@@ -1878,12 +2122,11 @@ Ceci n'est pas une pipe
     .reveal .transp {
       background-color: transparent;
     }
-    .reveal b {
-      color: #00f;
+
+    .reveal .smallcontent tr td {
+      font-size: 70%;
     }
-    .reveal i {
-      color: #f00;
-    }
+
   </style>
 </body>
 
